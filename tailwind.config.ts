@@ -2,7 +2,7 @@ import type { Config } from "tailwindcss";
 
 const config: Config = {
   corePlugins: {
-    preflight: false
+    preflight: false,
   },
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",

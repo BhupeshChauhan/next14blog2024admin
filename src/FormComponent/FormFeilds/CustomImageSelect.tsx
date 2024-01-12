@@ -2,7 +2,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { Button, ImageList, ImageListItem } from "@mui/material";
 import { useState } from "react";
-import CustomDialog from "../../UIComponents/CustomDialog";
+import CustomDialog from "../../ui/CustomDialog";
 
 type Props = {
   value?: any;

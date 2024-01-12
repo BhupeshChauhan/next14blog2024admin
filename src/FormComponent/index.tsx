@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import CustomTextField from "./FormFeilds/CustomTextField";
 import { useFormik } from "formik";
