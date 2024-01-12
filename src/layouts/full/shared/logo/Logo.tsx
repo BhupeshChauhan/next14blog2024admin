@@ -11,7 +11,7 @@ const LinkStyled = styled(Link)(() => ({
 
 const Logo = () => {
   return (
-    <LinkStyled href="/" className='flex justify-center items-center'>
+    <LinkStyled href="/" className="flex justify-center items-center">
       <Image
         src="/images/logos/dark-logo.svg"
         alt="logo"

@@ -1,10 +1,9 @@
-import { Lock, LockOpen, TextFields } from "@mui/icons-material";
-import { Box, Button, Stack } from "@mui/material";
+"use client";
+import { Box } from "@mui/material";
 import type { EditorOptions } from "@tiptap/core";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
   LinkBubbleMenu,
-  MenuButton,
   RichTextEditor,
   TableBubbleMenu,
   insertImages,

@@ -9,6 +9,7 @@ import {
   IconButton,
   Badge,
   Button,
+  Grid,
 } from "@mui/material";
 import PropTypes from "prop-types";
 
@@ -35,7 +36,7 @@ const Header = ({ toggleMobileSidebar }: ItemType) => {
       minHeight: "70px",
     },
     padding: 0,
-    width: "cal(100vw - 270px)"
+    width: "cal(100vw - 270px)",
   }));
   const ToolbarStyled = styled(Toolbar)(({ theme }) => ({
     width: "100%",
@@ -52,22 +53,26 @@ const Header = ({ toggleMobileSidebar }: ItemType) => {
 
   return (
     <AppBarStyled position="sticky" color="default">
-      <ToolbarStyled className="p-0">
-        <IconButton
-          color="inherit"
-          aria-label="menu"
-          onClick={toggleMobileSidebar}
-          sx={{
-            display: {
-              lg: "none",
-              xs: "inline",
-            },
-          }}
-        >
-          <IconMenu width="20" height="20" />
-        </IconButton>
-
-        {/* <IconButton
+      <ToolbarStyled className="p-0" sx={{width: "calc(100vw-270px)"}}>
+        <Grid container>
+          <Grid item xs={1}>
+            <IconButton
+              color="inherit"
+              aria-label="menu"
+              onClick={toggleMobileSidebar}
+              sx={{
+                display: {
+                  lg: "none",
+                  xs: "inline",
+                },
+              }}
+            >
+              <IconMenu width="20" height="20" />
+            </IconButton>
+          </Grid>
+          <Grid item xs={10}/>
+          <Grid item xs={1}>
+            {/* <IconButton
           size="large"
           aria-label="show 11 new notifications"
           color="inherit"
@@ -78,10 +83,11 @@ const Header = ({ toggleMobileSidebar }: ItemType) => {
             <IconBellRinging size="21" stroke="1.5" />
           </Badge>
         </IconButton> */}
-        <Box flexGrow={1} />
-        <Stack spacing={1} direction="row" alignItems="center">
-          <Profile />
-        </Stack>
+            <Stack spacing={1} direction="row" alignItems="center">
+              <Profile />
+            </Stack>
+          </Grid>
+        </Grid>
       </ToolbarStyled>
     </AppBarStyled>
   );
