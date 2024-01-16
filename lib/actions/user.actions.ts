@@ -64,34 +64,30 @@ export async function fetchUser() {
   }
 }
 
-export async function fetchUserByEmail(req: any, res: any) {
-  const { email } = await req.body;
+export async function fetchUserByEmail(email: any) {
   try {
     connectToDB();
     const UserData = await User.findOne({ email });
 
-    return res.status(200).json({ data: UserData, message: "User Exists" });
+    return { status: 200, message: "Added Succesfully", data: UserData };
   } catch (error: any) {
     console.error("Error:", error);
 
-    return res.status(500).json({ message: "Internal Server Error" });
+    return { status: 500, message: "Internal Server Error" };
   }
 }
 
-export async function updateUser(req: any, res: any) {
+export async function updateUser(payload: any) {
   try {
     connectToDB();
-    const { name, email, password } = await req.body;
+    const { id, name, email, password } = await payload;
 
-    console.log("req", req.body);
-    console.log("name", name);
-    console.log("email", email);
-    console.log("password", password);
+    const UserData = await User.findOne({ id });
 
-    return res.status(200).json({ message: "Success ADDED" });
+    return { status: 200, message: "Updated Succesfully" };
   } catch (error) {
     console.error("Error:", error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    return { status: 500, message: "Internal Server Error" };
   }
 }
 

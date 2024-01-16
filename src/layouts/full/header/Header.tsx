@@ -17,7 +17,7 @@ import PropTypes from "prop-types";
 import Profile from "./Profile";
 import { IconBellRinging, IconMenu } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 interface ItemType {
   toggleMobileSidebar: (event: React.MouseEvent<HTMLElement>) => void;
@@ -43,17 +43,9 @@ const Header = ({ toggleMobileSidebar }: ItemType) => {
     color: theme.palette.text.secondary,
   }));
 
-  const { data: session, status, update } = useSession();
-  // const route = useRouter();
-  // useEffect(() => {
-  //   if (status === "unauthenticated") {
-  //     route.replace("/authentication/login");
-  //   }
-  // }, [status, route]);
-
   return (
     <AppBarStyled position="sticky" color="default">
-      <ToolbarStyled className="p-0" sx={{width: "calc(100vw-270px)"}}>
+      <ToolbarStyled className="p-0" sx={{ width: "calc(100vw-270px)" }}>
         <Grid container>
           <Grid item xs={1}>
             <IconButton
@@ -70,7 +62,7 @@ const Header = ({ toggleMobileSidebar }: ItemType) => {
               <IconMenu width="20" height="20" />
             </IconButton>
           </Grid>
-          <Grid item xs={10}/>
+          <Grid item xs={10} />
           <Grid item xs={1}>
             {/* <IconButton
           size="large"

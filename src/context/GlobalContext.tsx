@@ -12,6 +12,7 @@ export function GlobalContextProvider({ children }: any) {
     vertical: "bottom",
     horizontal: "left",
   });
+  const [userData, setUserData] = useState([]);
   return (
     <GlobalContext.Provider
       value={{
@@ -27,6 +28,8 @@ export function GlobalContextProvider({ children }: any) {
         setAutoHideDuration,
         User,
         setUser,
+        userData,
+        setUserData,
       }}
     >
       {children}

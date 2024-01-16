@@ -54,6 +54,12 @@ const postsSchema = new mongoose.Schema(
     author: {
       type: Object,
     },
+    isDraft: {
+      type: Boolean,
+    },
+    isPublish: {
+      type: Boolean,
+    },
   },
   { timestamps: true },
 );

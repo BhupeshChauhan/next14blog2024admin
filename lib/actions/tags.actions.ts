@@ -3,11 +3,20 @@ import { SortOrder } from "mongoose";
 
 import { connectToDB } from "../mongoose";
 import tags from "../models/tags.model";
+import { validatePayload } from "../utils";
 
-export async function createtags(req: any, res: any) {
+export async function createtags(payload: any) {
   try {
     connectToDB();
-    const { name, slug, description } = await req.body;
+    const requiredFields = ["name", "slug", "description"];
+    const validate = validatePayload(payload, requiredFields);
+    if (!validate?.payloadIsCurrect) {
+      return {
+        status: 400,
+        message: `Missing required fields: ${validate.missingFields}`,
+      };
+    }
+    const { name, slug, description } = payload;
 
     const tagsData = await tags.find();
 
@@ -19,30 +28,24 @@ export async function createtags(req: any, res: any) {
     });
 
     await newtags.save();
-    return res.status(200).json({ message: "Success ADDED", status: 200 });
+    return { status: 200, message: "Added Succesfully" };
   } catch (error) {
     console.error("Error:", error);
 
-    return res
-      .status(500)
-      .json({ message: "Internal Server Error", status: 500 });
+    return { status: 500, message: "Internal Server Error" };
   }
 }
 
-export async function fetchtags(req: any, res: any) {
+export async function fetchtags() {
   try {
     connectToDB();
     const tagsData = await tags.find();
 
-    return res.status(200).json({
-      data: tagsData,
-      message: "SuccessFully Fetched",
-      status: 200,
-    });
+    return tagsData;
   } catch (error: any) {
     console.error("Error:", error);
 
-    return res.status(500).json({ message: "Internal Server Error" });
+    // throw new Error("Failed to fetch")
   }
 }
 

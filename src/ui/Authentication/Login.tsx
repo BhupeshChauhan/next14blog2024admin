@@ -13,8 +13,8 @@ import Link from "next/link";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/router";
 import CustomTextField from "@/FormComponent/FormFeilds/CustomTextField";
+import { useRouter } from "next/navigation";
 
 interface loginType {
   title?: string;
@@ -23,15 +23,16 @@ interface loginType {
 }
 
 const Login = ({ title, subtitle, subtext }: loginType) => {
+  const route = useRouter();
   const handleSubmit = async (values: any) => {
     try {
       const res = await signIn("credentials", {
         redirect: false,
         ...values,
       });
-      // if (res?.status === 200) {
-      //   route.replace("/");
-      // }
+      if (res?.status === 200) {
+        route.replace("/");
+      }
     } catch (error: any) {
       //
     }

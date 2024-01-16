@@ -3,11 +3,20 @@ import { SortOrder } from "mongoose";
 
 import { connectToDB } from "../mongoose";
 import categories from "../models/categories.model";
+import { validatePayload } from "../utils";
 
-export async function createcategories(req: any, res: any) {
+export async function createcategories(payload: any) {
   try {
     connectToDB();
-    const { name, slug, description } = await req.body;
+    const requiredFields = ["name", "slug", "description"];
+    const validate = validatePayload(payload, requiredFields);
+    if (!validate?.payloadIsCurrect) {
+      return {
+        status: 400,
+        message: `Missing required fields: ${validate.missingFields}`,
+      };
+    }
+    const { name, slug, description } = payload;
 
     const categoriesData = await categories.find();
 
@@ -19,32 +28,27 @@ export async function createcategories(req: any, res: any) {
     });
 
     await newcategories.save();
-    return res.status(200).json({ message: "Success ADDED", status: 200 });
+    return { status: 200, message: "Added Succesfully" };
   } catch (error) {
     console.error("Error:", error);
 
-    return res
-      .status(500)
-      .json({ message: "Internal Server Error", status: 500 });
+    return { status: 500, message: "Internal Server Error" };
   }
 }
 
-export async function fetchcategories(req: any, res: any) {
+export async function fetchcategories() {
   try {
     connectToDB();
     const categoriesData = await categories.find();
 
-    return res.status(200).json({
-      data: categoriesData,
-      message: "SuccessFully Fetched",
-      status: 200,
-    });
+    return categoriesData;
   } catch (error: any) {
     console.error("Error:", error);
 
-    return res.status(500).json({ message: "Internal Server Error" });
+    // throw new Error("Failed to fetch")
   }
 }
+
 export async function fetchCategoriesByName(req: any, res: any) {
   try {
     connectToDB();
