@@ -3,10 +3,32 @@ import { SortOrder } from "mongoose";
 
 import { connectToDB } from "../mongoose";
 import posts from "../models/posts.model";
+import { validatePayload } from "../utils";
 
-export async function createposts(req: any, res: any) {
+export async function createposts(payload: any) {
   try {
     connectToDB();
+    const requiredFields = [
+      "title",
+      "featuredImage",
+      "content",
+      "categories",
+      "tags",
+      "excerpt",
+      "visibility",
+      "focusKeyword",
+      "seoTitle",
+      "metaDescription",
+      "canonicalUrl",
+      "author",
+    ];
+    const validate = validatePayload(payload, requiredFields);
+    if (!validate?.payloadIsCurrect) {
+      return {
+        status: 400,
+        message: `Missing required fields: ${validate.missingFields}`,
+      };
+    }
     const {
       title,
       featuredImage,
@@ -20,7 +42,9 @@ export async function createposts(req: any, res: any) {
       metaDescription,
       canonicalUrl,
       author,
-    } = await req.body;
+      isDraft,
+      isPublish,
+    } = payload;
 
     const postsData = await posts.find();
 
@@ -38,31 +62,42 @@ export async function createposts(req: any, res: any) {
       metaDescription,
       canonicalUrl,
       author,
+      isDraft,
+      isPublish,
     });
 
     await newposts.save();
-    return res.status(200).json({ message: "Success ADDED", status: 200 });
+    return { status: 200, message: "Added Succesfully" };
   } catch (error) {
     console.error("Error:", error);
 
-    return res
-      .status(500)
-      .json({ message: "Internal Server Error", status: 500 });
+    return { status: 500, message: "Internal Server Error" };
   }
 }
 
-export async function fetchposts(req: any, res: any) {
+export async function fetchposts() {
   try {
     connectToDB();
-    const postsData = await posts.find();
+    let postsData = await posts.find();
 
-    return res
-      .status(200)
-      .json({ data: postsData, message: "SuccessFully Fetched", status: 200 });
+    return postsData;
   } catch (error: any) {
     console.error("Error:", error);
 
-    return res.status(500).json({ message: "Internal Server Error" });
+    // throw new Error("Failed to fetch")
+  }
+}
+
+export async function fetchDraftPosts() {
+  try {
+    connectToDB();
+    let postsData = await posts.find({ isDraft: true });
+
+    return postsData;
+  } catch (error: any) {
+    console.error("Error:", error);
+
+    // throw new Error("Failed to fetch")
   }
 }
 

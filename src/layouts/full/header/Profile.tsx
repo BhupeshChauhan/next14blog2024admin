@@ -13,7 +13,7 @@ import {
 
 import { IconListCheck, IconMail, IconUser } from "@tabler/icons-react";
 import { signOut } from "next-auth/react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 const Profile = () => {
   const [anchorEl2, setAnchorEl2] = useState(null);
@@ -23,10 +23,11 @@ const Profile = () => {
   const handleClose2 = () => {
     setAnchorEl2(null);
   };
+  const route = useRouter();
 
   const handleLogOut = async () => {
     await signOut({ redirect: false, callbackUrl: "/" });
-    // route.replace("/");
+    route.push("/");
   };
 
   return (

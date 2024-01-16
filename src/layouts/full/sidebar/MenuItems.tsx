@@ -33,6 +33,13 @@ const Menuitems = [
   },
   {
     id: uniqueId(),
+    title: "Draft",
+    icon: IconTypography,
+    href: "/draft/list",
+    path: "draft",
+  },
+  {
+    id: uniqueId(),
     title: "Categories",
     icon: IconCopy,
     href: "/categories/list",
@@ -65,6 +72,12 @@ const Menuitems = [
     title: "Users",
     icon: IconLogin,
     href: "/users/list",
+  },
+  {
+    id: uniqueId(),
+    title: "Roles",
+    icon: IconLogin,
+    href: "/roles/list",
   },
 ];
 

@@ -1,11 +1,12 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import CustomTextField from "./FormFeilds/CustomTextField";
 import { useFormik } from "formik";
-import { Button, Card, Grid, Typography } from "@mui/material";
+import { Button, Card, Grid, Input, Typography } from "@mui/material";
 import dynamic from "next/dynamic";
 import CustomSelect from "./FormFeilds/CustomSelect";
 import CustomImageSelect from "./FormFeilds/CustomImageSelect";
+import CustomCheckboxGroup from "./FormFeilds/CustomCheckboxGroup";
 
 const MyClientCustomTextEditor = dynamic(
   () => import("./FormFeilds/CustomTextEditor"),
@@ -23,6 +24,8 @@ interface IFormComponent {
   onClear?: any;
   isClose?: any;
   onClose?: any;
+  isEdit?: any;
+  editValues?: any;
 }
 const FormComponent: React.FC<IFormComponent> = ({
   formArray,
@@ -33,6 +36,8 @@ const FormComponent: React.FC<IFormComponent> = ({
   onClear,
   isClose,
   onClose,
+  isEdit,
+  editValues
 }) => {
   const formik = useFormik({
     initialValues: initialValues,
@@ -64,9 +69,20 @@ const FormComponent: React.FC<IFormComponent> = ({
     });
   };
 
+  useEffect(() => {
+    if(isEdit){
+      formik.setValues({
+        ...editValues
+      })
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEdit, editValues])
+  
+
   return (
     <form onSubmit={formik.handleSubmit} style={{ width: "100%" }}>
       <Grid container spacing={2}>
+        {isEdit ? <Input name="id" className="hidden" /> : null}
         {formArray?.map((element: any, index: number) => (
           <Grid
             item
@@ -157,6 +173,7 @@ const FormComponent: React.FC<IFormComponent> = ({
                       formik.errors[element.name]
                     }
                   />
+                  <Input name={element?.id} className="hidden"></Input>
                 </>
               ) : null}
               {element.formInputType === "imageSelector" ? (
@@ -170,6 +187,18 @@ const FormComponent: React.FC<IFormComponent> = ({
                     fullWidth={element?.fullWidth}
                     name={element?.name}
                     placeholder={element?.placeholder}
+                  />
+                </>
+              ) : null}
+              {element.formInputType === "checkboxGroup" ? (
+                <>
+                  <Typography variant="subtitle2" color="textSecondary">
+                    {element?.label}
+                  </Typography>
+                  <CustomCheckboxGroup
+                    formik={formik}
+                    CheckboxOptions={element?.CheckboxOptions}
+                    name={element?.name}
                   />
                 </>
               ) : null}

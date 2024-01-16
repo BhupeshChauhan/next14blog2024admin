@@ -16,6 +16,8 @@ type Props = {
   onClear?: any;
   isClose?: any;
   onClose?: any;
+  isEdit?: any;
+  editValues?: any;
 };
 
 export default function CustomDynamicForm({
@@ -31,10 +33,18 @@ export default function CustomDynamicForm({
   onClear,
   isClose,
   onClose,
+  isEdit,
+  editValues
 }: Props) {
   return (
     <Card
-      sx={{ padding: 0, marginBottom: "20px" }}
+      sx={{
+        padding: 0,
+        marginBottom: "20px",
+        width: "100%",
+        overflowY: "scroll",
+        maxHeight: "calc(100vh - 130px)",
+      }}
       elevation={9}
       variant={undefined}
     >
@@ -68,6 +78,8 @@ export default function CustomDynamicForm({
           onClear={onClear}
           isClose={isClose}
           onClose={onClose}
+          isEdit={isEdit}
+          editValues={editValues}
         />
         {footer}
       </CardContent>
