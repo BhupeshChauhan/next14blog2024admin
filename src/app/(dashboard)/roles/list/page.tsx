@@ -18,7 +18,10 @@ const RolesList = () => {
       headerName: "ID",
       renderCell: (params) => {
         const menuItem = [
-          { label: "Edit", onClick: () => router.push(`/roles/edit/${params?.row?.id}`) },
+          {
+            label: "Edit",
+            onClick: () => router.push(`/roles/edit/${params?.row?.id}`),
+          },
         ];
         return (
           <Grid container>

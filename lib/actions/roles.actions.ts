@@ -23,6 +23,7 @@ const modulePermissionsFunc = (payload: any) => {
     users: { view: false, add: false, edit: false, delete: false },
     roles: { view: false, add: false, edit: false, delete: false },
     draft: { view: false, add: false, edit: false, delete: false },
+    clientUser: { view: false },
   };
   const moduletype = [
     "dashboard",
@@ -33,6 +34,7 @@ const modulePermissionsFunc = (payload: any) => {
     "images",
     "roles",
     "draft",
+    "clientUser",
   ];
   moduletype.forEach((element: any) => {
     if (payload[`${element}View`]) {
@@ -70,36 +72,37 @@ const modulePermissionsCnvrt = (payload: any) => {
     "images",
     "roles",
     "draft",
+    "clientUser",
   ];
   moduletype.forEach((element: any) => {
     if (modulePermissions[element]?.view) {
       reponse[`${element}View`] = true;
-    }else if(!!modulePermissions[element]?.view) {
+    } else if (!!modulePermissions[element]?.view) {
       reponse[`${element}View`] = false;
     }
     if (modulePermissions[element]?.add) {
       reponse[`${element}Add`] = true;
-    }else if(!!modulePermissions[element]?.add) {
+    } else if (!!modulePermissions[element]?.add) {
       reponse[`${element}Add`] = false;
     }
     if (modulePermissions[element]?.edit) {
       reponse[`${element}Update`] = true;
-    }else if(!!modulePermissions[element]?.edit){
+    } else if (!!modulePermissions[element]?.edit) {
       reponse[`${element}Update`] = false;
     }
     if (modulePermissions[element]?.delete) {
       reponse[`${element}Delete`] = true;
-    }else if(!!modulePermissions[element]?.delete) {
+    } else if (!!modulePermissions[element]?.delete) {
       reponse[`${element}Delete`] = false;
     }
     if (modulePermissions[element]?.publish) {
       reponse[`${element}Publish`] = true;
-    }else if(!!modulePermissions[element]?.publish) {
+    } else if (!!modulePermissions[element]?.publish) {
       reponse[`${element}Publish`] = false;
     }
     if (modulePermissions[element]?.draft) {
       reponse[`${element}Draft`] = true;
-    }else if(!!modulePermissions[element]?.draft) {
+    } else if (!!modulePermissions[element]?.draft) {
       reponse[`${element}Draft`] = false;
     }
   });
@@ -131,7 +134,7 @@ export async function updateModulePermissions(payload: any) {
     const filter = { id: payload.id }; // Specify the criteria for the document to update
     const update = { $set: modulePermissions }; // Define the update operation
     const res = await ModulePermissions.updateOne(filter, update);
-    console.log(res)
+    console.log(res);
     return { status: 200, message: "Updated Succesfully" };
   } catch (error) {
     console.error("Error:", error);
@@ -144,6 +147,7 @@ export async function getModulePermissions(email: any) {
   try {
     const user: any = await User.findOne({ email: email });
     const RolesData: any = await Roles.findOne({ name: user.role });
+    console.log(RolesData.id);
     const modulePermissionsData = await ModulePermissions.findOne({
       id: RolesData.id,
     });
@@ -206,15 +210,19 @@ export async function fetchRoles() {
   }
 }
 export async function fetchRolesbyId(id: any) {
-  console.log(id)
+  console.log(id);
   try {
     connectToDB();
-    const RolesData = await Roles.findOne({id: Number(id)});
-    const modulePermissions = await ModulePermissions.findOne({id});
-    const newModulePermissions = await modulePermissionsCnvrt(modulePermissions)
+    const RolesData = await Roles.findOne({ id: Number(id) });
+    const modulePermissions = await ModulePermissions.findOne({ id });
+    const newModulePermissions =
+      await modulePermissionsCnvrt(modulePermissions);
 
-    const response = { ...newModulePermissions, ...JSON.parse(JSON.stringify(RolesData))}
-    return  JSON.parse(JSON.stringify(response));
+    const response = {
+      ...newModulePermissions,
+      ...JSON.parse(JSON.stringify(RolesData)),
+    };
+    return JSON.parse(JSON.stringify(response));
   } catch (error: any) {
     console.error("Error:", error);
 
@@ -236,12 +244,20 @@ export async function fetchRolesByName(name: any) {
 export async function updateRoles(payload: any) {
   try {
     connectToDB();
+    const requiredFields = ["name", "description"];
+    const validate = validatePayload(payload, requiredFields);
+    if (!validate?.payloadIsCurrect) {
+      return {
+        status: 400,
+        message: `Missing required fields: ${validate.missingFields}`,
+      };
+    }
     const { id, name, description } = await payload;
 
     const filter = { id }; // Specify the criteria for the document to update
-    const update = { $set: {name: name, description: description} }; // Define the update operation
-    const res = await updateModulePermissions(payload)
-    console.log(res)
+    const update = { $set: { name: name, description: description } }; // Define the update operation
+    const res = await updateModulePermissions(payload);
+
     await Roles.updateOne(filter, update);
     return { status: 200, message: "Updated Succesfully" };
   } catch (error) {

@@ -3,11 +3,10 @@ import { Button, Grid } from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
 import Link from "next/link";
 import CustomDataGrid from "@/components/CustomDataGrid";
-import { fetchAdminUser } from "../../../../../lib/actions/user.actions";
+import { fetchClientUser } from "../../../../../lib/actions/user.actions";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import CustomMenu from "@/components/CustomMenu";
 
 const UsersList = () => {
   const pathname = usePathname();
@@ -18,24 +17,6 @@ const UsersList = () => {
     {
       field: "id",
       headerName: "ID",
-      renderCell: (params) => {
-        const menuItem = [
-          {
-            label: "Edit",
-            onClick: () => router.push(`/users/edit/${params?.row?.id}`),
-          },
-        ];
-        return (
-          <Grid container>
-            <Grid item xs={10}>
-              {params.value}
-            </Grid>
-            <Grid item xs={2}>
-              <CustomMenu menuItem={menuItem} />
-            </Grid>
-          </Grid>
-        );
-      },
     },
     {
       field: "name",
@@ -51,6 +32,7 @@ const UsersList = () => {
       field: "role",
       headerName: "User's Role",
       flex: 1,
+      renderCell: (params) => <>User</>,
     },
     {
       field: "createdAt",
@@ -60,7 +42,7 @@ const UsersList = () => {
   ];
   useEffect(() => {
     async function ApiCall() {
-      const Users: any = await fetchAdminUser();
+      const Users: any = await fetchClientUser();
       setUsers(Users);
     }
     ApiCall();
@@ -71,11 +53,6 @@ const UsersList = () => {
       <CustomDataGrid
         title="Users List"
         // subtitle="All listed Blogs"
-        action={
-          <Link href={"/users/add"}>
-            <Button variant="outlined">Create User</Button>
-          </Link>
-        }
         columns={columns}
         rows={Users}
         pageSize={10}

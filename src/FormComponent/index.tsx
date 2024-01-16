@@ -26,6 +26,8 @@ interface IFormComponent {
   onClose?: any;
   isEdit?: any;
   editValues?: any;
+  AddintionalFooterActions?: any;
+  hideSubmit?: any;
 }
 const FormComponent: React.FC<IFormComponent> = ({
   formArray,
@@ -37,7 +39,9 @@ const FormComponent: React.FC<IFormComponent> = ({
   isClose,
   onClose,
   isEdit,
-  editValues
+  editValues,
+  AddintionalFooterActions,
+  hideSubmit,
 }) => {
   const formik = useFormik({
     initialValues: initialValues,
@@ -70,14 +74,13 @@ const FormComponent: React.FC<IFormComponent> = ({
   };
 
   useEffect(() => {
-    if(isEdit){
+    if (isEdit) {
       formik.setValues({
-        ...editValues
-      })
+        ...editValues,
+      });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEdit, editValues])
-  
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEdit, editValues]);
 
   return (
     <form onSubmit={formik.handleSubmit} style={{ width: "100%" }}>
@@ -206,21 +209,24 @@ const FormComponent: React.FC<IFormComponent> = ({
           </Grid>
         ))}
         <Grid item xs={12} sm={12} lg={12} xl={12} sx={{ marginTop: "30px" }}>
-          <Button
-            color="primary"
-            variant="contained"
-            type="submit"
-            sx={{ marginRight: "10px" }}
-          >
-            Submit
-          </Button>
+          {AddintionalFooterActions(formik)}
+          {!hideSubmit ? (
+            <Button
+              color="primary"
+              variant="contained"
+              type="submit"
+              sx={{ marginRight: "10px" }}
+            >
+              Submit
+            </Button>
+          ) : null}
           {isClear ? (
-            <Button variant="outlined" onClick={handleClear}>
+            <Button variant="outlined" color="error" onClick={handleClear}>
               Clear
             </Button>
           ) : null}
           {isClose ? (
-            <Button variant="outlined" onClick={handleClose}>
+            <Button variant="outlined" color="error" onClick={handleClose}>
               isClose
             </Button>
           ) : null}

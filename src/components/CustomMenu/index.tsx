@@ -23,7 +23,7 @@ export default function CustomMenu({ menuItem }: any) {
         aria-haspopup="true"
         aria-expanded={open ? "true" : undefined}
         onClick={handleClick}
-        sx={{padding: 0}}
+        sx={{ padding: 0 }}
       >
         <IconDotsVertical height={15} width={15} />
       </IconButton>

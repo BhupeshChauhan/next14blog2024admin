@@ -11,13 +11,17 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    role: {
-      type: String,
+    roleId: {
+      type: Number,
+    },
+    client: {
+      type: Boolean,
       required: true,
     },
     password: String,
     image: String,
     bio: String,
+    isInActive: Boolean,
   },
   { timestamps: true },
 );

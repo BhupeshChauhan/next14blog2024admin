@@ -12,34 +12,37 @@ const AuthGard = ({ children }: any) => {
   const route = useRouter();
   const pathname = usePathname();
 
-  async function HandleUserData() {
-    const userData = await getModulePermissions(session?.user?.email);
-    setUserData(userData?.data);
-    checkModulePermissions(userData?.data);
-  }
   function checkModulePermissions(userData: any) {
     const path = pathname.split("/");
-    const modulePermissions = userData.modulePermissions[path[1]];
-    const operationPermission =
-      path[2] === "list" ? modulePermissions?.view : modulePermissions[path[2]];
-    setRoutePermission(operationPermission);
+    if (path[1] && !path[2]) {
+      const modulePermissions = userData.modulePermissions[path[1]];
+      if (path[1] === "dashboard") {
+        const operationPermission = modulePermissions?.view;
+        setRoutePermission(operationPermission);
+      } else {
+        setRoutePermission(false);
+      }
+    } else if (path[1] && path[2]) {
+      const modulePermissions = userData.modulePermissions[path[1]];
+      if (path[2] === "list") {
+        const operationPermission = modulePermissions?.view;
+        setRoutePermission(operationPermission);
+      } else {
+        const operationPermission = modulePermissions[path[2]];
+        setRoutePermission(operationPermission);
+      }
+    }
   }
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      route.replace("/login");
-    } else if (status === "authenticated" && pathname === "/login") {
-      route.replace("/");
-    }
-  }, [status, route, pathname]);
-
-  useEffect(() => {
-    if (session?.user) {
-      if (userData.length === 0) HandleUserData();
-      else if (userData.length > 0) checkModulePermissions(userData);
+    if (userData?.length > 0) {
+      checkModulePermissions(userData);
+      if (pathname === "/login") {
+        route.push("/dashboard");
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.user, pathname]);
+  }, [pathname, route, userData]);
 
   return <div>{RoutePermission ? children : <NotAuthorised />}</div>;
 };

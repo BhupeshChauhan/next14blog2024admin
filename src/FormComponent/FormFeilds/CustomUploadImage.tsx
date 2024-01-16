@@ -21,7 +21,6 @@ const VisuallyHiddenInput = styled("input")({
 export default function CustomUploadImage() {
   const [selectedFile, setselectedFile] = useState<any>(null);
   const handleUploadClick = (event: any) => {
-    console.log();
     var file = event.target.files[0];
     const reader = new FileReader();
     var url = reader.readAsDataURL(file);

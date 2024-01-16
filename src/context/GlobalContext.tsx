@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 const GlobalContext = createContext<any>(null);
 
@@ -12,7 +12,19 @@ export function GlobalContextProvider({ children }: any) {
     vertical: "bottom",
     horizontal: "left",
   });
-  const [userData, setUserData] = useState([]);
+  let storedState = [];
+  if (typeof window !== "undefined" && window.localStorage) {
+    storedState = localStorage.getItem("userData")
+      ? JSON?.parse(localStorage.getItem("userData") || "") || []
+      : [];
+  }
+  const [userData, setUserData] = useState(storedState);
+
+  useEffect(() => {
+    // Save the state to localStorage whenever it changes
+    localStorage.setItem("userData", JSON.stringify(userData));
+  }, [userData]);
+
   return (
     <GlobalContext.Provider
       value={{

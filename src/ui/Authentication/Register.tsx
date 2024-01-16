@@ -1,10 +1,10 @@
 import { Box, Typography, Button } from "@mui/material";
-import CustomTextField from "../../../src/components/forms/theme-elements/CustomTextField";
 import { Stack } from "@mui/system";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useRouter } from "next/router";
 import useApi from "../../hooks/useApi";
+import CustomTextField from "@/FormComponent/FormFeilds/CustomTextField";
 
 interface registerType {
   title?: string;
@@ -14,16 +14,16 @@ interface registerType {
 
 const Register = ({ title, subtitle, subtext }: registerType) => {
   const router = useRouter();
-  const { isLoading, isError, response, apiCall } = useApi();
+  // const { isLoading, isError, response, apiCall } = useApi();
   const handleSubmit = async (values: any) => {
-    const res = await apiCall(
-      { ...values, role: "user" },
-      "/api/authentication",
-      "POST",
-    );
-    if (res.status === 200) {
-      router.push("/login");
-    }
+    // const res = await apiCall(
+    //   { ...values, role: "user" },
+    //   "/api/authentication",
+    //   "POST",
+    // );
+    // if (res.status === 200) {
+    //   router.push("/login");
+    // }
   };
 
   const formik = useFormik({

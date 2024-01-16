@@ -248,6 +248,7 @@ const PostsAdd = () => {
       xl: 6,
     },
   ];
+  const [IsPublish, setIsPublish] = useState(false);
 
   const getfetchcategories = async () => {
     const categories: any = await fetchcategories();
@@ -260,11 +261,37 @@ const PostsAdd = () => {
   };
 
   const onAddPost = async (values: any) => {
+    console.log({
+      ...values,
+      author: userData.user,
+      isDraft: !IsPublish,
+      isPublish: IsPublish,
+    });
+    // const res: any = await apiCall({
+    //   ...values,
+    //   author: userData.user,
+    //   isDraft: !IsPublish,
+    //   isPublish: IsPublish,
+    // });
+    // if (res.status === 200) router.push("/posts/list");
+  };
+
+  const onPublishPost = async (values: any) => {
     const res: any = await apiCall({
       ...values,
       author: userData.user,
-      isDraft: false,
-      isPublish: true,
+      isDraft: !IsPublish,
+      isPublish: IsPublish,
+    });
+    if (res.status === 200) router.push("/posts/list");
+  };
+
+  const onDraftPost = async (values: any) => {
+    const res: any = await apiCall({
+      ...values,
+      author: userData.user,
+      isDraft: !IsPublish,
+      isPublish: IsPublish,
     });
     if (res.status === 200) router.push("/posts/list");
   };
@@ -305,6 +332,33 @@ const PostsAdd = () => {
         onSubmit={onAddPost}
         isClear={true}
         validationSchema={validationSchema}
+        hideSubmit={true}
+        AddintionalFooterActions={(formik: any) => (
+          <>
+            <Button
+              color="primary"
+              variant="contained"
+              sx={{ marginRight: "10px" }}
+              type="submit"
+              onClick={() => {
+                setIsPublish(true);
+              }}
+            >
+              Publish Post
+            </Button>
+            <Button
+              color="primary"
+              sx={{ marginRight: "10px" }}
+              type="submit"
+              variant="outlined"
+              onClick={() => {
+                setIsPublish(false);
+              }}
+            >
+              Draft Post
+            </Button>
+          </>
+        )}
       />
     </>
   );

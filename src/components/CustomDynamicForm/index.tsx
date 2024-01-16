@@ -18,6 +18,8 @@ type Props = {
   onClose?: any;
   isEdit?: any;
   editValues?: any;
+  AddintionalFooterActions?: any;
+  hideSubmit?: any;
 };
 
 export default function CustomDynamicForm({
@@ -34,7 +36,9 @@ export default function CustomDynamicForm({
   isClose,
   onClose,
   isEdit,
-  editValues
+  editValues,
+  AddintionalFooterActions,
+  hideSubmit,
 }: Props) {
   return (
     <Card
@@ -80,6 +84,8 @@ export default function CustomDynamicForm({
           onClose={onClose}
           isEdit={isEdit}
           editValues={editValues}
+          AddintionalFooterActions={AddintionalFooterActions}
+          hideSubmit={hideSubmit}
         />
         {footer}
       </CardContent>
