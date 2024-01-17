@@ -209,7 +209,7 @@ const FormComponent: React.FC<IFormComponent> = ({
           </Grid>
         ))}
         <Grid item xs={12} sm={12} lg={12} xl={12} sx={{ marginTop: "30px" }}>
-          {AddintionalFooterActions(formik)}
+          {AddintionalFooterActions && AddintionalFooterActions(formik)}
           {!hideSubmit ? (
             <Button
               color="primary"
