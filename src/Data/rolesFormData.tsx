@@ -191,6 +191,17 @@ const rolesFormData = () => {
       lg: 6,
       xl: 6,
     },
+    {
+      id: "clientUser",
+      name: "clientUser",
+      label: "Client User Module",
+      formInputType: "checkboxGroup",
+      CheckboxOptions: [{ name: "clientUserView", label: "View" }],
+      xs: 6,
+      sm: 6,
+      lg: 6,
+      xl: 6,
+    },
   ];
 
   const rolesInitialValues = {
@@ -227,6 +238,7 @@ const rolesFormData = () => {
     draftAdd: false,
     draftUpdate: false,
     draftDelete: false,
+    clientUserView: false,
   };
   const rolesValidationSchema = Yup.object({
     name: Yup.string().required("Name is required"),

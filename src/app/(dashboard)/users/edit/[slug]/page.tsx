@@ -5,18 +5,26 @@ import useApi from "@/hooks/useApi";
 import CustomCircularProgress from "@/components/CustomCircularProgress";
 import CustomDynamicForm from "@/components/CustomDynamicForm";
 import { usePathname, useRouter } from "next/navigation";
-import { createUser } from "../../../../../lib/actions/user.actions";
-import usersFormData from "@/Data/usersFormData";
+import rolesFormData from "@/Data/rolesFormData";
+import {
+  fetchRoles,
+  fetchRolesbyId,
+  updateRoles,
+} from "../../../../../../lib/actions/roles.actions";
 import { useEffect, useState } from "react";
-import { fetchRoles } from "../../../../../lib/actions/roles.actions";
+import usersFormData from "@/Data/usersFormData";
+import {
+  fetchAdminUserById,
+  updateUser,
+} from "../../../../../../lib/actions/user.actions";
 
-const UsersAdd = () => {
+const UsersEdit = () => {
   const [RolesList, setRolesList] = useState([]);
   const pathname = usePathname();
   const { usersformArray, userInitialValues, userValidationSchema } =
     usersFormData(RolesList);
   const { isLoading, isError, response, apiCall, resetValues } =
-    useApi(createUser);
+    useApi(updateUser);
   const router = useRouter();
 
   const onAddUser = async (values: any) => {
@@ -25,12 +33,23 @@ const UsersAdd = () => {
   };
 
   useEffect(() => {
-    async function ApiCall() {
-      const roles: any = await fetchRoles();
-      setRolesList(roles);
-    }
+    async function ApiCall() {}
     ApiCall();
   }, [pathname]);
+
+  const [userValues, setUserValues] = useState({});
+  const id = pathname.split("/")[3];
+
+  useEffect(() => {
+    async function ApiCall() {
+      const user: any = await fetchAdminUserById(id);
+      const roles: any = await fetchRoles();
+      setRolesList(roles);
+      console.log(user);
+      setUserValues(user);
+    }
+    ApiCall();
+  }, [id, pathname]);
 
   return (
     <>
@@ -48,9 +67,11 @@ const UsersAdd = () => {
         onSubmit={onAddUser}
         isClear={true}
         validationSchema={userValidationSchema}
+        isEdit={true}
+        editValues={userValues}
       />
     </>
   );
 };
 
-export default UsersAdd;
+export default UsersEdit;

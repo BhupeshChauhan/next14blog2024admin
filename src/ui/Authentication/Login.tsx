@@ -15,6 +15,8 @@ import * as Yup from "yup";
 import { signIn } from "next-auth/react";
 import CustomTextField from "@/FormComponent/FormFeilds/CustomTextField";
 import { useRouter } from "next/navigation";
+import { useGlobalContext } from "@/context/GlobalContext";
+import { getModulePermissions } from "../../../lib/actions/roles.actions";
 
 interface loginType {
   title?: string;
@@ -24,6 +26,16 @@ interface loginType {
 
 const Login = ({ title, subtitle, subtext }: loginType) => {
   const route = useRouter();
+  const { setUserData } = useGlobalContext();
+
+  async function HandleUserData(email: any) {
+    const response = await getModulePermissions(email);
+    if (response?.status === 200) {
+      console.log(response?.data)
+      setUserData(response?.data);
+    }
+  }
+
   const handleSubmit = async (values: any) => {
     try {
       const res = await signIn("credentials", {
@@ -31,7 +43,8 @@ const Login = ({ title, subtitle, subtext }: loginType) => {
         ...values,
       });
       if (res?.status === 200) {
-        route.replace("/");
+        await HandleUserData(values.email);
+        route.push("/dashboard");
       }
     } catch (error: any) {
       //

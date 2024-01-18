@@ -7,25 +7,36 @@ import { usePathname } from "next/navigation";
 
 const SidebarItems = ({ toggleMobileSidebar }: any) => {
   const pathDirect = usePathname();
+  const { items } = Menuitems();
 
   return (
     <Box sx={{ px: 3 }}>
       <List sx={{ pt: 0 }} className="sidebarNav" component="div">
-        {Menuitems.map((item) => {
+        {items.map((item) => {
           // {/********SubHeader**********/}
           if (item.subheader) {
-            return <NavGroup item={item} key={item.subheader} />;
+            return (
+              <>
+                {item.visibility ? (
+                  <NavGroup item={item} key={item.subheader} />
+                ) : null}
+              </>
+            );
 
             // {/********If Sub Menu**********/}
             /* eslint no-else-return: "off" */
           } else {
             return (
-              <NavItem
-                item={item}
-                key={item.id}
-                pathDirect={pathDirect}
-                onClick={toggleMobileSidebar}
-              />
+              <>
+                {item.visibility ? (
+                  <NavItem
+                    item={item}
+                    key={item.id}
+                    pathDirect={pathDirect}
+                    onClick={toggleMobileSidebar}
+                  />
+                ) : null}
+              </>
             );
           }
         })}

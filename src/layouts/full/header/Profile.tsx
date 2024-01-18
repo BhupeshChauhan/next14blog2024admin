@@ -27,7 +27,8 @@ const Profile = () => {
 
   const handleLogOut = async () => {
     await signOut({ redirect: false, callbackUrl: "/" });
-    route.push("/");
+    localStorage.clear();
+    route.push("/login");
   };
 
   return (

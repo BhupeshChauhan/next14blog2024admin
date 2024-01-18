@@ -11,20 +11,24 @@ import {
   updateRoles,
 } from "../../../../../../lib/actions/roles.actions";
 import { useEffect, useState } from "react";
+import categoriesFormData from "@/Data/categoriesFormData";
 
 const UsersEdit = () => {
   const [rolesValues, setRolesValues] = useState({});
   const pathname = usePathname();
   const { isLoading, isError, response, apiCall, resetValues } =
     useApi(updateRoles);
-  const { rolesFormArray, rolesInitialValues, rolesValidationSchema } =
-    rolesFormData();
+  const {
+    categoriesformArray,
+    categoriesInitialValues,
+    categoriesValidationSchema,
+  } = categoriesFormData();
   const id = pathname.split("/")[3];
   const router = useRouter();
 
-  const onAddUser = async (values: any) => {
+  const onEditCategory = async (values: any) => {
     const res: any = await apiCall(values);
-    if (res.status === 200) router.push("/roles/list");
+    if (res.status === 200) router.push("/categories/list");
   };
   useEffect(() => {
     async function ApiCall() {
@@ -38,18 +42,18 @@ const UsersEdit = () => {
     <>
       {isLoading ? <CustomCircularProgress color="inherit" /> : <></>}
       <CustomDynamicForm
-        title="Edit Role"
+        title="Update Category"
         // subtitle="All listed Blogs"
         action={
-          <Link href={"/roles/list"}>
-            <Button variant="outlined">Roles List</Button>
+          <Link href={"/categories/list"}>
+            <Button variant="outlined">Categories List</Button>
           </Link>
         }
-        formArray={rolesFormArray}
-        initialValues={rolesInitialValues}
-        onSubmit={onAddUser}
+        formArray={categoriesformArray}
+        initialValues={categoriesInitialValues}
+        onSubmit={onEditCategory}
+        validationSchema={categoriesValidationSchema}
         isClear={true}
-        validationSchema={rolesValidationSchema}
         isEdit={true}
         editValues={rolesValues}
       />

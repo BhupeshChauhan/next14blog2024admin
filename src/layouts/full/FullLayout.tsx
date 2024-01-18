@@ -4,13 +4,9 @@ import { styled, Container, Box, ThemeProvider } from "@mui/material";
 
 import Header from "../full/header/Header";
 import Sidebar from "../full/sidebar/Sidebar";
-import {
-  GlobalContextProvider,
-  useGlobalContext,
-} from "@/context/GlobalContext";
+import { useGlobalContext } from "@/context/GlobalContext";
 import SnackBarComponent from "@/ui/SnackBarComponent";
 import { baselightTheme } from "@/theme/DefaultColors";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { getModulePermissions } from "../../../lib/actions/roles.actions";
 
@@ -31,8 +27,17 @@ const PageWrapper = styled("div")(() => ({
 }));
 
 const FullLayout = ({ children }: any) => {
+  const route = useRouter();
+  const { userData, setUserData } = useGlobalContext();
+
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    if (userData.length === 0) {
+      route.push("/login");
+    }
+  }, [userData, route]);
 
   return (
     <ThemeProvider theme={baselightTheme}>
