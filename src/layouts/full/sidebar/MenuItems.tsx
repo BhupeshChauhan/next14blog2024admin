@@ -75,7 +75,7 @@ const MenuItems = () => {
       id: uniqueId(),
       title: "Images",
       icon: IconTypography,
-      href: "/galery/images/list",
+      href: "/images/list",
       path: "images",
       visibility: userData?.modulePermissions?.images?.view,
     },

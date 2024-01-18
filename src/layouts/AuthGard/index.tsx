@@ -35,7 +35,7 @@ const AuthGard = ({ children }: any) => {
   }
 
   useEffect(() => {
-    if (userData?.length > 0) {
+    if (Object.values(userData)?.length > 0) {
       checkModulePermissions(userData);
       if (pathname === "/login") {
         route.push("/dashboard");

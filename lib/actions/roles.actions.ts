@@ -146,16 +146,13 @@ export async function updateModulePermissions(payload: any) {
 export async function getModulePermissions(email: any) {
   try {
     const user: any = await User.findOne({ email: email });
-    const RolesData: any = await Roles.findOne({ name: user.role });
-    console.log(RolesData.id);
     const modulePermissionsData = await ModulePermissions.findOne({
-      id: RolesData.id,
+      id: user.roleId
     });
     return {
       status: 200,
       data: {
         user: user,
-        role: RolesData,
         modulePermissions: modulePermissionsData,
       },
     };
