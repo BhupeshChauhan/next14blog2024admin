@@ -1,18 +1,36 @@
 "use client";
-import { Button, Grid } from "@mui/material";
+import { Button, Chip, Grid, Typography } from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
 import Link from "next/link";
 import CustomDataGrid from "@/components/CustomDataGrid";
-import { fetchAdminUser } from "../../../../../lib/actions/user.actions";
+import {
+  activateUser,
+  deleteUser,
+  fetchAdminUser,
+} from "../../../../../lib/actions/user.actions";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import CustomMenu from "@/components/CustomMenu";
+import CustomCircularProgress from "@/components/CustomCircularProgress";
+import CustomModal from "@/components/CustomModal";
+import { parseISO, format } from "date-fns";
+import { useGlobalContext } from "@/context/GlobalContext";
+import checkModulePermission, {
+  checkPermissionDelete,
+  moduleAction,
+  moduleName,
+} from "@/utils/checkModulePermission";
 
 const UsersList = () => {
+  const [isLoading, setisLoading] = useState(false);
+  const [DeleteMoadal, setDeleteMoadal] = useState(false);
+  const [ActivateMoadal, setActivateMoadal] = useState(false);
+  const [SelectedUser, setSelectedUser] = useState<any>({});
+  const [Users, setUsers] = useState([]);
   const pathname = usePathname();
   const router = useRouter();
-  const [Users, setUsers] = useState([]);
+  const { userData } = useGlobalContext();
 
   const columns: GridColDef[] = [
     {
@@ -21,8 +39,30 @@ const UsersList = () => {
       renderCell: (params) => {
         const menuItem = [
           {
-            label: "Edit",
+            label: <Typography color="blue">Edit</Typography>,
             onClick: () => router.push(`/users/edit/${params?.row?.id}`),
+            disable: !checkModulePermission(
+              userData,
+              moduleName.USERS,
+              moduleAction.EDIT,
+            ),
+          },
+          {
+            label: (
+              <Typography color={params.row.inActive ? "green" : "red"}>
+                {params.row.inActive ? "Activate" : "Deactivate"}
+              </Typography>
+            ),
+            onClick: () => {
+              if (params.row.inActive) {
+                setActivateMoadal(true);
+                setSelectedUser(params.row);
+              } else if (!params.row.inActive) {
+                setDeleteMoadal(true);
+                setSelectedUser(params.row);
+              }
+            },
+            disable: checkPermissionDelete(userData, params, moduleName.USERS),
           },
         ];
         return (
@@ -56,24 +96,80 @@ const UsersList = () => {
       field: "createdAt",
       headerName: "Created At",
       flex: 1,
+      renderCell: (params: any) => {
+        return <>{format(parseISO(params?.row?.createdAt), "MMMM dd, yyyy")}</>;
+      },
+    },
+    {
+      field: "inActive",
+      headerName: "Status",
+      flex: 1,
+      renderCell: (params: any) => {
+        if (params?.row?.inActive) {
+          return (
+            <Chip label="Deactivated" color="warning" variant="outlined" />
+          );
+        } else if (!params?.row?.inActive) {
+          return <Chip label="Active" color="primary" variant="outlined" />;
+        }
+        return null;
+      },
     },
   ];
+
+  const handleDelete = async () => {
+    setisLoading(true);
+    await deleteUser(SelectedUser.id);
+    await fetchAdminUser().then((res: any) => {
+      setUsers(res);
+    });
+    setDeleteMoadal(false);
+    setSelectedUser({});
+    setisLoading(false);
+  };
+
+  const handleActivate = async () => {
+    setisLoading(true);
+    await activateUser(SelectedUser.id);
+    await fetchAdminUser().then((res: any) => {
+      setUsers(res);
+    });
+    setActivateMoadal(false);
+    setSelectedUser({});
+    setisLoading(false);
+  };
+
   useEffect(() => {
+    setisLoading(true);
     async function ApiCall() {
-      const Users: any = await fetchAdminUser();
-      setUsers(Users);
+      await fetchAdminUser().then((res: any) => {
+        setUsers(res);
+      });
+      setisLoading(false);
     }
     ApiCall();
   }, [pathname]);
+
   return (
     <>
-      {/* {isLoading ? <CustomCircularProgress color="inherit" /> : <></>} */}
+      {isLoading ? <CustomCircularProgress color="inherit" /> : <></>}
       <CustomDataGrid
         title="Users List"
         // subtitle="All listed Blogs"
         action={
           <Link href={"/users/add"}>
-            <Button variant="outlined">Create User</Button>
+            <Button
+              variant="outlined"
+              disabled={
+                !checkModulePermission(
+                  userData,
+                  moduleName.USERS,
+                  moduleAction.ADD,
+                )
+              }
+            >
+              Create User
+            </Button>
           </Link>
         }
         columns={columns}
@@ -82,6 +178,38 @@ const UsersList = () => {
         pageSizeOptions={[10, 25, 50, 100]}
         disableRowSelectionOnClick={true}
         disableColumnSelector={true}
+      />
+      <CustomModal
+        open={DeleteMoadal}
+        title={`Do you want to Deactivate ${SelectedUser?.name} Role`}
+        content={
+          "Note: If you deactivate this user, User will not be able to login into the system again."
+        }
+        handleClose={() => {
+          setDeleteMoadal(false);
+          setSelectedUser({});
+        }}
+        onOk={handleDelete}
+        onCancel={() => {
+          setDeleteMoadal(false);
+          setSelectedUser({});
+        }}
+      />
+      <CustomModal
+        open={ActivateMoadal}
+        title={`Do you want to activate ${SelectedUser?.name} Role`}
+        content={
+          "Note: If you activate this user, User will be able to login into the system again."
+        }
+        handleClose={() => {
+          setActivateMoadal(false);
+          setSelectedUser({});
+        }}
+        onOk={handleActivate}
+        onCancel={() => {
+          setActivateMoadal(false);
+          setSelectedUser({});
+        }}
       />
     </>
   );

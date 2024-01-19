@@ -12,6 +12,17 @@ const usersFormData = (rolesList: any) => {
       xl: 12,
     },
     {
+      name: "profilePicture",
+      label: "Profile Picture",
+      placeholder: "Select Profile Picture",
+      formInputType: "imageSelector",
+      xs: 6,
+      sm: 6,
+      lg: 6,
+      xl: 6,
+      fullWidth: true,
+    },
+    {
       id: "Name",
       name: "name",
       label: "Name",

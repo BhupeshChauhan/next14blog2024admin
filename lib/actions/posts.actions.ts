@@ -1,9 +1,78 @@
 "use server";
-import { SortOrder } from "mongoose";
 
 import { connectToDB } from "../mongoose";
 import posts from "../models/posts.model";
 import { validatePayload } from "../utils";
+import { fetchCategoryById, fetchCategoryByName } from "./categories.actions";
+import { fetchTagsById, fetchTagsByName } from "./tags.actions";
+
+const getTagIds = async (tags: any) => {
+  let tagIdsArray = [];
+  for (const tag of tags) {
+    const tagObj: any = await fetchTagsByName(tag);
+    tagIdsArray.push(tagObj.id);
+  }
+  return tagIdsArray;
+};
+
+const getCategoryIds = async (categories: any) => {
+  let categoryIdsArray = [];
+  for (const category of categories) {
+    const categoryObj: any = await fetchCategoryByName(category);
+    categoryIdsArray.push(categoryObj.data.id);
+  }
+  return categoryIdsArray;
+};
+
+const getTagNames = async (tags: any) => {
+  let tagIdsArray = [];
+  for (const tag of tags) {
+    const tagObj: any = await fetchTagsById(tag);
+    if (!tagObj.inActive) {
+    tagIdsArray.push(tagObj.name);
+    }
+  }
+  return tagIdsArray;
+};
+
+const getCategoryNames = async (categories: any) => {
+  let categoryIdsArray = [];
+  for (const category of categories) {
+    const categoryObj: any = await fetchCategoryById(category);
+    if (!categoryObj.inActive) {
+    categoryIdsArray.push(categoryObj.name);
+    }
+  }
+  return categoryIdsArray;
+};
+
+const getPostsData = async (posts: any) => {
+  let newData: any = [];
+  for (const post of posts) {
+    let postData: any = [];
+    const { categoryIds, tagIds } = post;
+    let categories: any = [];
+    if (categoryIds.length > 0) {
+      for (const id of categoryIds) {
+          categories = await getCategoryNames(id)
+      }
+    }
+    postData = { ...post, categories: categories };
+    delete postData.categoryIds;
+
+    let tags: any = [];
+    if (tagIds.length > 0) {
+      for (const id of tagIds) {
+         tags = await getTagNames(id)
+      }
+    }
+    postData = { ...postData, tags: tags };
+    delete postData.tagIds;
+
+    newData.push(postData);
+  }
+  return newData;
+};
 
 export async function createposts(payload: any) {
   try {
@@ -12,6 +81,8 @@ export async function createposts(payload: any) {
       "title",
       "featuredImage",
       "content",
+      'description',
+      'slug',
       "categories",
       "tags",
       "excerpt",
@@ -39,6 +110,8 @@ export async function createposts(payload: any) {
       visibility,
       focusKeyword,
       seoTitle,
+      description,
+      slug,
       metaDescription,
       canonicalUrl,
       author,
@@ -46,17 +119,22 @@ export async function createposts(payload: any) {
       isPublish,
     } = payload;
 
+    let categoryIds = await getCategoryIds(categories);
+    let tagIds = await getTagIds(tags);
+
     const postsData = await posts.find();
 
     const newposts = new posts({
-      id: postsData.length + 1,
+      id: postsData?.length + 1,
       title,
       featuredImage,
       content,
-      categories,
-      tags,
+      categoryIds,
+      tagIds,
       excerpt,
       visibility,
+      description,
+      slug,
       focusKeyword,
       seoTitle,
       metaDescription,
@@ -79,8 +157,15 @@ export async function fetchposts() {
   try {
     connectToDB();
     let postsData = await posts.find();
-
-    return postsData;
+    let PublishedPosts: any = [];
+    
+    if (postsData.length > 0) {
+      PublishedPosts = await getPostsData(
+        JSON.parse(JSON.stringify(postsData)),
+      );
+    }
+    
+    return PublishedPosts;
   } catch (error: any) {
     console.error("Error:", error);
 
@@ -93,7 +178,12 @@ export async function fetchDraftPosts() {
     connectToDB();
     let postsData = await posts.find({ isDraft: true });
 
-    return postsData;
+    let draftPosts: any = [];
+    if (postsData.length > 0) {
+      draftPosts = await getPostsData(JSON.parse(JSON.stringify(postsData)));
+    }
+
+    return draftPosts;
   } catch (error: any) {
     console.error("Error:", error);
 
@@ -101,188 +191,152 @@ export async function fetchDraftPosts() {
   }
 }
 
-export async function fetchpostsByEmail(req: any, res: any) {
-  const { email } = await req.body;
+export async function fetchPostBySlug(slug: any) {
   try {
     connectToDB();
-    const postsData = await posts.findOne({ email });
-
-    return res
-      .status(200)
-      .json({ data: postsData, message: "posts Exists", status: 200 });
+    const postsData = await posts.findOne({ slug });
+    let newPosts: any = [];
+    if (postsData.length > 0) {
+      newPosts = await getPostsData(JSON.parse(JSON.stringify(postsData)));
+    }
+    return newPosts
   } catch (error: any) {
     console.error("Error:", error);
 
-    return res.status(500).json({ message: "Internal Server Error" });
+    // return res.status(500).json({ message: "Internal Server Error" });
   }
 }
 
-export async function fetchPostByTitle(req: any, res: any) {
-  const { title } = await req.body;
+export async function fetchPostById(id: any) {
   try {
     connectToDB();
-    const postsData = await posts.findOne({ title });
-
-    return res
-      .status(200)
-      .json({ data: postsData, message: "posts Exists", status: 200 });
+    const postsData = await posts.findOne({ id });
+    let newPosts: any = [];
+    if (postsData.length > 0) {
+      newPosts = await getPostsData(JSON.parse(JSON.stringify(postsData)));
+    }
+    return newPosts
   } catch (error: any) {
     console.error("Error:", error);
 
-    return res.status(500).json({ message: "Internal Server Error" });
+    // return res.status(500).json({ message: "Internal Server Error" });
   }
 }
 
-export async function updateposts(req: any, res: any) {
+export async function updatePosts(payload: any) {
   try {
     connectToDB();
-    const { name, email, password } = await req.body;
+    const requiredFields = [
+      "title",
+      "featuredImage",
+      "content",
+      'description',
+      'slug',
+      "categories",
+      "tags",
+      "excerpt",
+      "visibility",
+      "focusKeyword",
+      "seoTitle",
+      "metaDescription",
+      "canonicalUrl",
+      "author",
+    ];
+    const validate = validatePayload(payload, requiredFields);
+    if (!validate?.payloadIsCurrect) {
+      return {
+        status: 400,
+        message: `Missing required fields: ${validate.missingFields}`,
+      };
+    }
+    const {
+      id,
+      title,
+      featuredImage,
+      content,
+      categories,
+      tags,
+      excerpt,
+      visibility,
+      focusKeyword,
+      seoTitle,
+      description,
+      slug,
+      metaDescription,
+      canonicalUrl,
+      author,
+      isDraft,
+      isPublish,
+    } = payload;
 
-    console.log("req", req.body);
-    console.log("name", name);
-    console.log("email", email);
-    console.log("password", password);
+    let categoryIds = await getCategoryIds(categories);
+    let tagIds = await getTagIds(tags);
 
-    return res.status(200).json({ message: "Success ADDED" });
+    const filter = { id }; // Specify the criteria for the document to update
+    const update = {
+      $set: {
+        title,
+        featuredImage,
+        content,
+        categoryIds,
+        tagIds,
+        excerpt,
+        visibility,
+        description,
+        slug,
+        focusKeyword,
+        seoTitle,
+        metaDescription,
+        canonicalUrl,
+        author,
+        isDraft,
+        isPublish,
+      },
+    }; // Define the update operation
+
+    await posts.updateOne(filter, update);
+
+    return { status: 200, message: "Updated Succesfully" };
   } catch (error) {
     console.error("Error:", error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    return { status: 500, message: "Internal Server Error" };
   }
 }
 
-export async function deleteposts(req: any, res: any) {
+export async function deletePosts(id: any) {
   try {
     connectToDB();
-    const { name, email, password } = await req.body;
+    const filter = { id }; // Specify the criteria for the document to update
+    const update = {
+      $set: {
+        inActive: true,
+      },
+    }; // Define the update operation
 
-    console.log("req", req.body);
-    console.log("name", name);
-    console.log("email", email);
-    console.log("password", password);
+    await posts.updateOne(filter, update);
 
-    return res.status(200).json({ message: "Success ADDED" });
+    return { status: 200, message: "Updated Succesfully" };
   } catch (error) {
     console.error("Error:", error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    return { status: 500, message: "Internal Server Error" };
   }
 }
 
-export async function fetchpostsPosts(postsId: string) {
+export async function activatePosts(id: any) {
   try {
     connectToDB();
+    const filter = { id }; // Specify the criteria for the document to update
+    const update = {
+      $set: {
+        inActive: false,
+      },
+    }; // Define the update operation
 
-    // // Find all threads authored by the posts with the given postsId
-    // const threads = await posts.findOne({ id: postsId }).populate({
-    //   path: "threads",
-    //   model: Thread,
-    //   populate: [
-    //     {
-    //       path: "community",
-    //       model: Community,
-    //       select: "name id image _id", // Select the "name" and "_id" fields from the "Community" model
-    //     },
-    //     {
-    //       path: "children",
-    //       model: Thread,
-    //       populate: {
-    //         path: "author",
-    //         model: posts,
-    //         select: "name image id", // Select the "name" and "_id" fields from the "posts" model
-    //       },
-    //     },
-    //   ],
-    // });
-    // return threads;
+    await posts.updateOne(filter, update);
+
+    return { status: 200, message: "Updated Succesfully" };
   } catch (error) {
-    console.error("Error fetching posts threads:", error);
-    throw error;
-  }
-}
-
-// Almost similar to Thead (search + pagination) and Community (search + pagination)
-export async function fetchpostss({
-  postsId,
-  searchString = "",
-  pageNumber = 1,
-  pageSize = 20,
-  sortBy = "desc",
-}: {
-  postsId: string;
-  searchString?: string;
-  pageNumber?: number;
-  pageSize?: number;
-  sortBy?: SortOrder;
-}) {
-  try {
-    connectToDB();
-
-    // // Calculate the number of postss to skip based on the page number and page size.
-    // const skipAmount = (pageNumber - 1) * pageSize;
-
-    // // Create a case-insensitive regular expression for the provided search string.
-    // const regex = new RegExp(searchString, "i");
-
-    // // Create an initial query object to filter postss.
-    // const query: FilterQuery<typeof posts> = {
-    //   id: { $ne: postsId }, // Exclude the current posts from the results.
-    // };
-
-    // // If the search string is not empty, add the $or operator to match either postsname or name fields.
-    // if (searchString.trim() !== "") {
-    //   query.$or = [
-    //     { postsname: { $regex: regex } },
-    //     { name: { $regex: regex } },
-    //   ];
-    // }
-
-    // // Define the sort options for the fetched postss based on createdAt field and provided sort order.
-    // const sortOptions = { createdAt: sortBy };
-
-    // const postssQuery = posts.find(query)
-    //   .sort(sortOptions)
-    //   .skip(skipAmount)
-    //   .limit(pageSize);
-
-    // // Count the total number of postss that match the search criteria (without pagination).
-    // const totalpostssCount = await posts.countDocuments(query);
-
-    // const postss = await postssQuery.exec();
-
-    // // Check if there are more postss beyond the current page.
-    // const isNext = totalpostssCount > skipAmount + postss.length;
-
-    // return { postss, isNext };
-  } catch (error) {
-    console.error("Error fetching postss:", error);
-    throw error;
-  }
-}
-
-export async function getActivity(postsId: string) {
-  try {
-    connectToDB();
-
-    // // Find all threads created by the posts
-    // const postsThreads = await Thread.find({ author: postsId });
-
-    // // Collect all the child thread ids (replies) from the 'children' field of each posts thread
-    // const childThreadIds = postsThreads.reduce((acc, postsThread) => {
-    //   return acc.concat(postsThread.children);
-    // }, []);
-
-    // // Find and return the child threads (replies) excluding the ones created by the same posts
-    // const replies = await Thread.find({
-    //   _id: { $in: childThreadIds },
-    //   author: { $ne: postsId }, // Exclude threads authored by the same posts
-    // }).populate({
-    //   path: "author",
-    //   model: posts,
-    //   select: "name image _id",
-    // });
-
-    // return replies;
-  } catch (error) {
-    console.error("Error fetching replies: ", error);
-    throw error;
+    console.error("Error:", error);
+    return { status: 500, message: "Internal Server Error" };
   }
 }

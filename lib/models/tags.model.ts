@@ -7,6 +7,10 @@ const tagsSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    featuredImage: {
+      type: String,
+      required: true,
+    },
     slug: {
       type: String,
       required: true,
@@ -19,6 +23,7 @@ const tagsSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    inActive: Boolean,
   },
   { timestamps: true },
 );

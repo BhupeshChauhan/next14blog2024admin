@@ -37,13 +37,13 @@ export default function CustomMenu({ menuItem }: any) {
         }}
       >
         {menuItem.map((element: any, index: any) => {
-          const { onClick, label } = element;
+          const { onClick, label, disable } = element;
           const handleClick = () => {
             handleClose();
             onClick();
           };
           return (
-            <MenuItem key={index} onClick={handleClick}>
+            <MenuItem key={index} onClick={handleClick} disabled={disable}>
               {label}
             </MenuItem>
           );

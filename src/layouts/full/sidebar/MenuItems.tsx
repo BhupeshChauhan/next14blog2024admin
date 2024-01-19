@@ -91,13 +91,15 @@ const MenuItems = () => {
       title: "Admin Users",
       icon: IconLogin,
       href: "/users/list",
+      path: "users",
       visibility: userData?.modulePermissions?.users?.view,
     },
     {
       id: uniqueId(),
       title: "Client Users",
       icon: IconLogin,
-      href: "/clientUsers/list",
+      href: "/clientUser/list",
+      path: "clientUser",
       visibility: userData?.modulePermissions?.users?.view,
     },
     {
@@ -105,6 +107,7 @@ const MenuItems = () => {
       title: "Roles",
       icon: IconLogin,
       href: "/roles/list",
+      path: "roles",
       visibility: userData?.modulePermissions?.roles?.view,
     },
   ];

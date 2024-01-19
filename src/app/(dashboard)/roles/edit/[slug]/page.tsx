@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 const UsersEdit = () => {
   const [rolesValues, setRolesValues] = useState({});
   const pathname = usePathname();
-  const { isLoading, isError, response, apiCall, resetValues } =
+  const { isLoading, isError, response, apiCall, resetValues, setIsLoading } =
     useApi(updateRoles);
   const { rolesFormArray, rolesInitialValues, rolesValidationSchema } =
     rolesFormData();
@@ -28,10 +28,13 @@ const UsersEdit = () => {
   };
   useEffect(() => {
     async function ApiCall() {
+      setIsLoading(true);
       const roles: any = await fetchRolesbyId(id);
       setRolesValues(roles);
+      setIsLoading(false);
     }
     ApiCall();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, pathname]);
 
   return (

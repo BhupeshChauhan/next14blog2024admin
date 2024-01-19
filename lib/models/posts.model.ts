@@ -15,11 +15,11 @@ const postsSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    categories: {
+    categoryIds: {
       type: Object,
       required: true,
     },
-    tags: {
+    tagIds: {
       type: Object,
       required: true,
     },
@@ -60,6 +60,9 @@ const postsSchema = new mongoose.Schema(
     isPublish: {
       type: Boolean,
     },
+    description: String,
+    slug: String,
+    inActive: Boolean,
   },
   { timestamps: true },
 );

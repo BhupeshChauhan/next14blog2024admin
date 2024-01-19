@@ -5,40 +5,33 @@ import useApi from "@/hooks/useApi";
 import CustomCircularProgress from "@/components/CustomCircularProgress";
 import CustomDynamicForm from "@/components/CustomDynamicForm";
 import { usePathname, useRouter } from "next/navigation";
-import rolesFormData from "@/Data/rolesFormData";
-import {
-  fetchRolesbyId,
-  updateRoles,
-} from "../../../../../../lib/actions/roles.actions";
 import { useEffect, useState } from "react";
-import categoriesFormData from "@/Data/categoriesFormData";
 import {
-  fetchCategoryById,
-  updateCategory,
-} from "../../../../../../lib/actions/categories.actions";
+  updateTags,
+  fetchTagsById,
+} from "../../../../../../lib/actions/tags.actions";
+import tagsFormData from "@/Data/tagsFormData";
 
 const UsersEdit = () => {
-  const [rolesValues, setRolesValues] = useState({});
+  const [TagValues, setTagValues] = useState({});
   const pathname = usePathname();
   const { isLoading, isError, response, apiCall, resetValues, setIsLoading } =
-    useApi(updateCategory);
-  const {
-    categoriesformArray,
-    categoriesInitialValues,
-    categoriesValidationSchema,
-  } = categoriesFormData();
+    useApi(updateTags);
+  const { tagsFormArray, tagsInitialValues, tagsValidationSchema } =
+    tagsFormData();
   const id = pathname.split("/")[3];
   const router = useRouter();
 
-  const onEditCategory = async (values: any) => {
+  const onAddUser = async (values: any) => {
     const res: any = await apiCall(values);
-    if (res.status === 200) router.push("/categories/list");
+    if (res.status === 200) router.push("/tags/list");
   };
   useEffect(() => {
     setIsLoading(true);
     async function ApiCall() {
-      const roles: any = await fetchCategoryById(id);
-      setRolesValues(roles);
+      const tags: any = await fetchTagsById(id);
+      setTagValues(tags);
+
       setIsLoading(false);
     }
     ApiCall();
@@ -49,20 +42,20 @@ const UsersEdit = () => {
     <>
       {isLoading ? <CustomCircularProgress color="inherit" /> : <></>}
       <CustomDynamicForm
-        title="Update Category"
+        title="Edit Tag"
         // subtitle="All listed Blogs"
         action={
-          <Link href={"/categories/list"}>
-            <Button variant="outlined">Categories List</Button>
+          <Link href={"/tags/list"}>
+            <Button variant="outlined">Tags List</Button>
           </Link>
         }
-        formArray={categoriesformArray}
-        initialValues={categoriesInitialValues}
-        onSubmit={onEditCategory}
-        validationSchema={categoriesValidationSchema}
+        formArray={tagsFormArray}
+        initialValues={tagsInitialValues}
+        onSubmit={onAddUser}
         isClear={true}
+        validationSchema={tagsValidationSchema}
         isEdit={true}
-        editValues={rolesValues}
+        editValues={TagValues}
       />
     </>
   );
