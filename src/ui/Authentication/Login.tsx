@@ -31,7 +31,7 @@ const Login = ({ title, subtitle, subtext }: loginType) => {
   async function HandleUserData(email: any) {
     const response = await getModulePermissions(email);
     if (response?.status === 200) {
-      console.log(response?.data)
+      console.log(response?.data);
       setUserData(response?.data);
     }
   }

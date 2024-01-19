@@ -1,62 +1,67 @@
 "use client";
-import { useEffect, useState } from "react";
 import { Button } from "@mui/material";
 import Link from "next/link";
-import * as Yup from "yup";
-import CustomDynamicForm from "@/components/CustomDynamicForm";
-import { fetchcategories } from "../../../../../lib/actions/categories.actions";
-import { fetchtags } from "../../../../../lib/actions/tags.actions";
-import { createposts } from "../../../../../lib/actions/posts.actions";
 import useApi from "@/hooks/useApi";
-import { useRouter } from "next/navigation";
 import CustomCircularProgress from "@/components/CustomCircularProgress";
-import { useGlobalContext } from "@/context/GlobalContext";
+import CustomDynamicForm from "@/components/CustomDynamicForm";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { fetchPostById, updatePosts } from "../../../../../../lib/actions/posts.actions";
 import postsFormData from "@/Data/postFormData";
+import { fetchcategories } from "../../../../../../lib/actions/categories.actions";
+import { fetchtags } from "../../../../../../lib/actions/tags.actions";
+import { useGlobalContext } from "@/context/GlobalContext";
 import checkModulePermission, { moduleAction, moduleName } from "@/utils/checkModulePermission";
 
-const PostsAdd = () => {
-  const { isLoading, isError, response, apiCall, resetValues, setIsLoading } =
-    useApi(createposts);
+const UsersEdit = () => {
+  const [postValues, setpostValues] = useState({});
   const [CategoryList, setCategoryList] = useState([]);
   const [TagsList, setTagsList] = useState([]);
-  const { userData } = useGlobalContext();
-  const { postsFormArray, postsInitialValues, postsValidationSchema } = postsFormData(CategoryList, TagsList)
   const [IsPublish, setIsPublish] = useState(false);
+  const pathname = usePathname();
+  const { userData } = useGlobalContext();
+  const { isLoading, isError, response, apiCall, resetValues, setIsLoading } =
+    useApi(updatePosts);
+    const { postsFormArray, postsInitialValues, postsValidationSchema } = postsFormData(CategoryList, TagsList)
+    const getfetchcategories = async () => {
+      const categories: any = await fetchcategories();
+      setCategoryList(categories);
+    };
+  
+    const getfetchtags = async () => {
+      const tags: any = await fetchtags();
+      setTagsList(tags);
+    };
+  const id = pathname.split("/")[3];
+  const router = useRouter();
 
-  const getfetchcategories = async () => {
-    const categories: any = await fetchcategories();
-    setCategoryList(categories);
-  };
-
-  const getfetchtags = async () => {
-    const tags: any = await fetchtags();
-    setTagsList(tags);
-  };
-
-  const onAddPost = async (values: any) => {
+  const onUpdatePost = async (values: any) => {
     const res: any = await apiCall({
       ...values,
       author: userData.user,
       isDraft: !IsPublish,
       isPublish: IsPublish,
     });
-    // if (res.status === 200) router.push("/posts/list");
+    if (res.status === 200) router.push("/posts/list");
   };
-
-
   useEffect(() => {
-    setIsLoading(true)
-    getfetchcategories();
-    getfetchtags();
-    setIsLoading(false)
+    async function ApiCall() {
+      setIsLoading(true);
+      getfetchcategories();
+      getfetchtags();
+      const post: any = await fetchPostById(id);
+      setpostValues(post);
+      setIsLoading(false);
+    }
+    ApiCall();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [id, pathname]);
 
   return (
     <>
       {isLoading ? <CustomCircularProgress color="inherit" /> : <></>}
       <CustomDynamicForm
-        title="Create Posts"
+        title="Edit Posts"
         // subtitle="All listed Blogs"
         action={
           <Link href={"/posts/list"}>
@@ -65,9 +70,11 @@ const PostsAdd = () => {
         }
         formArray={postsFormArray}
         initialValues={postsInitialValues}
-        onSubmit={onAddPost}
+        onSubmit={onUpdatePost}
         isClear={true}
         validationSchema={postsValidationSchema}
+        isEdit={true}
+        editValues={postValues}
         hideSubmit={true}
         AddintionalFooterActions={(formik: any) => (
           <>
@@ -110,4 +117,4 @@ const PostsAdd = () => {
   );
 };
 
-export default PostsAdd;
+export default UsersEdit;

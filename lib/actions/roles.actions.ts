@@ -5,6 +5,7 @@ import Roles from "../models/roles.model";
 import { validatePayload } from "../utils";
 import ModulePermissions from "../models/modulePermissions.model";
 import User from "../models/user.model";
+import { activateUser, deleteUser } from "./user.actions";
 
 const modulePermissionsFunc = (payload: any) => {
   const modulePermissions: any = {
@@ -13,16 +14,53 @@ const modulePermissionsFunc = (payload: any) => {
       view: false,
       add: false,
       edit: false,
-      delete: false,
+      activate: false,
+      deactivate: false,
       publish: false,
       draft: false,
     },
-    categories: { view: false, add: false, edit: false, delete: false },
-    tags: { view: false, add: false, edit: false, delete: false },
-    images: { view: false, add: false, edit: false, delete: false },
-    users: { view: false, add: false, edit: false, delete: false },
-    roles: { view: false, add: false, edit: false, delete: false },
-    draft: { view: false, add: false, edit: false, delete: false },
+    categories: {
+      view: false,
+      add: false,
+      edit: false,
+      activate: false,
+      deactivate: false,
+    },
+    tags: {
+      view: false,
+      add: false,
+      edit: false,
+      activate: false,
+      deactivate: false,
+    },
+    images: {
+      view: false,
+      add: false,
+      edit: false,
+      activate: false,
+      deactivate: false,
+    },
+    users: {
+      view: false,
+      add: false,
+      edit: false,
+      activate: false,
+      deactivate: false,
+    },
+    roles: {
+      view: false,
+      add: false,
+      edit: false,
+      activate: false,
+      deactivate: false,
+    },
+    draft: {
+      view: false,
+      add: false,
+      edit: false,
+      activate: false,
+      deactivate: false,
+    },
     clientUser: { view: false },
   };
   const moduletype = [
@@ -46,8 +84,11 @@ const modulePermissionsFunc = (payload: any) => {
     if (payload[`${element}Update`]) {
       modulePermissions[element].edit = true;
     }
-    if (payload[`${element}Delete`]) {
-      modulePermissions[element].delete = true;
+    if (payload[`${element}Activate`]) {
+      modulePermissions[element].activate = true;
+    }
+    if (payload[`${element}Deactivate`]) {
+      modulePermissions[element].deactivate = true;
     }
     if (payload[`${element}Publish`]) {
       modulePermissions[element].publish = true;
@@ -90,10 +131,15 @@ const modulePermissionsCnvrt = (payload: any) => {
     } else if (!!modulePermissions[element]?.edit) {
       reponse[`${element}Update`] = false;
     }
-    if (modulePermissions[element]?.delete) {
-      reponse[`${element}Delete`] = true;
-    } else if (!!modulePermissions[element]?.delete) {
-      reponse[`${element}Delete`] = false;
+    if (modulePermissions[element]?.activate) {
+      reponse[`${element}Activate`] = true;
+    } else if (!!modulePermissions[element]?.activate) {
+      reponse[`${element}Activate`] = false;
+    }
+    if (modulePermissions[element]?.deactivate) {
+      reponse[`${element}Deactivate`] = true;
+    } else if (!!modulePermissions[element]?.deactivate) {
+      reponse[`${element}Deactivate`] = false;
     }
     if (modulePermissions[element]?.publish) {
       reponse[`${element}Publish`] = true;
@@ -143,11 +189,39 @@ export async function updateModulePermissions(payload: any) {
   }
 }
 
+export async function deleteModulePermissions(id: any) {
+  try {
+    const filter = { id: id }; // Specify the criteria for the document to update
+    const update = { $set: { $set: { inActive: true } } }; // Define the update operation
+    const res = await ModulePermissions.updateOne(filter, update);
+    console.log(res);
+    return { status: 200, message: "Updated Succesfully" };
+  } catch (error) {
+    console.error("Error:", error);
+
+    return { status: 500, message: "Internal Server Error" };
+  }
+}
+
+export async function activateModulePermissions(id: any) {
+  try {
+    const filter = { id: id }; // Specify the criteria for the document to update
+    const update = { $set: { $set: { inActive: false } } }; // Define the update operation
+    const res = await ModulePermissions.updateOne(filter, update);
+    console.log(res);
+    return { status: 200, message: "Updated Succesfully" };
+  } catch (error) {
+    console.error("Error:", error);
+
+    return { status: 500, message: "Internal Server Error" };
+  }
+}
+
 export async function getModulePermissions(email: any) {
   try {
     const user: any = await User.findOne({ email: email });
     const modulePermissionsData = await ModulePermissions.findOne({
-      id: user.roleId
+      id: user.roleId,
     });
     return {
       status: 200,
@@ -263,19 +337,48 @@ export async function updateRoles(payload: any) {
   }
 }
 
-export async function deleteRoles(req: any, res: any) {
+export async function deleteRole(id: any) {
   try {
     connectToDB();
-    const { name, email, password } = await req.body;
 
-    console.log("req", req.body);
-    console.log("name", name);
-    console.log("email", email);
-    console.log("password", password);
+    const filter = { id }; // Specify the criteria for the document to update
+    const update = { $set: { inActive: true } }; // Define the update operation
 
-    return res.status(200).json({ message: "Success ADDED" });
+    await deleteModulePermissions(id);
+
+    const UserData: any = await User.find({ client: false, roleId: id });
+
+    for (const user of UserData) {
+      await deleteUser(user.id);
+    }
+
+    await Roles.updateOne(filter, update);
+    return { status: 200, message: "Updated Succesfully" };
   } catch (error) {
     console.error("Error:", error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    return { status: 500, message: "Internal Server Error" };
+  }
+}
+
+export async function activateRole(id: any) {
+  try {
+    connectToDB();
+
+    const filter = { id }; // Specify the criteria for the document to update
+    const update = { $set: { inActive: false } }; // Define the update operation
+
+    await deleteModulePermissions(id);
+
+    const UserData: any = await User.find({ client: false, roleId: id });
+
+    for (const user of UserData) {
+      await activateUser(user.id);
+    }
+
+    await Roles.updateOne(filter, update);
+    return { status: 200, message: "Updated Succesfully" };
+  } catch (error) {
+    console.error("Error:", error);
+    return { status: 500, message: "Internal Server Error" };
   }
 }

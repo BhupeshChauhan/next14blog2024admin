@@ -65,6 +65,7 @@ const useApi = (apiFucntion: any) => {
     response,
     apiCall,
     resetValues,
+    setIsLoading,
   };
 };
 

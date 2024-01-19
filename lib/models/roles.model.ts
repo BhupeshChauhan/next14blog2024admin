@@ -11,6 +11,7 @@ const rolesSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    inActive: Boolean,
   },
   { timestamps: true },
 );

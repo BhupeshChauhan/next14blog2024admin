@@ -12,6 +12,7 @@ const modulePermissionsSchema = new mongoose.Schema(
     roles: Object,
     draft: Object,
     clientUser: Object,
+    inActive: Boolean,
   },
   { timestamps: true },
 );
