@@ -79,6 +79,15 @@ const TagsList = () => {
       },
     },
     {
+      field: "featuredImage",
+      headerName: "Featured Image",
+      flex: 1,
+      renderCell: (params) => {
+        // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
+        return <img src={params.value} width={100} height={60} />;
+      },
+    },
+    {
       field: "name",
       headerName: "Category Name",
       flex: 1,

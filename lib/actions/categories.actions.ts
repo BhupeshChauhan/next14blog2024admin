@@ -8,7 +8,7 @@ import { validatePayload } from "../utils";
 export async function createcategories(payload: any) {
   try {
     connectToDB();
-    const requiredFields = ["name", "slug", "description"];
+    const requiredFields = ["name", "slug", "description", "featuredImage"];
     const validate = validatePayload(payload, requiredFields);
     if (!validate?.payloadIsCurrect) {
       return {
@@ -16,7 +16,7 @@ export async function createcategories(payload: any) {
         message: `Missing required fields: ${validate.missingFields}`,
       };
     }
-    const { name, slug, description } = payload;
+    const { name, slug, description, featuredImage } = payload;
 
     const categoriesData = await categories.find();
 
@@ -25,6 +25,7 @@ export async function createcategories(payload: any) {
       name,
       slug,
       description,
+      featuredImage
     });
 
     await newcategories.save();
@@ -82,7 +83,7 @@ export async function fetchCategoryByName(name: any) {
 export async function updateCategory(payload: any) {
   try {
     connectToDB();
-    const requiredFields = ["id", "name", "description", "slug"];
+    const requiredFields = ["id", "name", "description", "slug", "featuredImage"];
     const validate = validatePayload(payload, requiredFields);
     if (!validate?.payloadIsCurrect) {
       return {
@@ -90,11 +91,11 @@ export async function updateCategory(payload: any) {
         message: `Missing required fields: ${validate.missingFields}`,
       };
     }
-    const { id, name, description, slug } = await payload;
+    const { id, name, description, slug, featuredImage } = await payload;
 
     const filter = { id }; // Specify the criteria for the document to update
     const update = {
-      $set: { name: name, description: description, slug: slug },
+      $set: { name: name, description: description, slug: slug, featuredImage: featuredImage},
     }; // Define the update operation
 
     await categories.updateOne(filter, update);

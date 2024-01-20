@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { Button } from "@mui/material";
 import * as Yup from "yup";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import CustomCircularProgress from "@/components/CustomCircularProgress";
 import CustomDynamicForm from "@/components/CustomDynamicForm";
 import { createtags } from "../../../../../lib/actions/tags.actions";
