@@ -53,10 +53,10 @@ const CustomSelect = ({
         inputProps={{ "aria-label": "Without label" }}
         renderValue={(selected) => {
           if (multiple) {
-            if (selected.length === 0) {
+            if (selected?.length === 0) {
               return <em>{placeholder}</em>;
             }
-            return selected.join(", ");
+            return selected?.join(", ");
           } else {
             if (!selected) {
               return <em>{placeholder}</em>;

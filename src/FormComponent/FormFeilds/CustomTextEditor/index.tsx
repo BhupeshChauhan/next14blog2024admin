@@ -142,6 +142,7 @@ export default function CustomTextEditor({
           ref={rteRef}
           extensions={extensions}
           content={EditerContent}
+          key={EditerContent}
           editable={isEditable}
           editorProps={{
             handleDrop: handleDrop,

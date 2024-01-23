@@ -7,7 +7,7 @@ export const moduleAction = {
   DEACTIVATE: "deactivate",
   VIEW: "view",
   PUBLISH: "publish",
-  DRAFT: 'draft',
+  DRAFT: "draft",
 };
 
 export const moduleName = {

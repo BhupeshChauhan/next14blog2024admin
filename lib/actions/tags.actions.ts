@@ -6,7 +6,7 @@ import { validatePayload } from "../utils";
 export async function createtags(payload: any) {
   try {
     connectToDB();
-    const requiredFields = ["name", "slug", "description", 'featuredImage'];
+    const requiredFields = ["name", "slug", "description", "featuredImage"];
     const validate = validatePayload(payload, requiredFields);
     if (!validate?.payloadIsCurrect) {
       return {
@@ -23,7 +23,7 @@ export async function createtags(payload: any) {
       name,
       slug,
       description,
-      featuredImage
+      featuredImage,
     });
 
     await newtags.save();
@@ -91,7 +91,13 @@ export async function fetchtagsByEmail(req: any, res: any) {
 export async function updateTags(payload: any) {
   try {
     connectToDB();
-    const requiredFields = ["id", "name", "description", "slug",'featuredImage'];
+    const requiredFields = [
+      "id",
+      "name",
+      "description",
+      "slug",
+      "featuredImage",
+    ];
     const validate = validatePayload(payload, requiredFields);
     if (!validate?.payloadIsCurrect) {
       return {
@@ -103,7 +109,12 @@ export async function updateTags(payload: any) {
 
     const filter = { id }; // Specify the criteria for the document to update
     const update = {
-      $set: { name: name, description: description, slug: slug, featuredImage: featuredImage },
+      $set: {
+        name: name,
+        description: description,
+        slug: slug,
+        featuredImage: featuredImage,
+      },
     }; // Define the update operation
 
     await tags.updateOne(filter, update);

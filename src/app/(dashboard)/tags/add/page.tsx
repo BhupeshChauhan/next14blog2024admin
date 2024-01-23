@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import { Button } from "@mui/material";
-import * as Yup from "yup";
 import { useRouter } from "next/navigation";
 import CustomCircularProgress from "@/components/CustomCircularProgress";
 import CustomDynamicForm from "@/components/CustomDynamicForm";

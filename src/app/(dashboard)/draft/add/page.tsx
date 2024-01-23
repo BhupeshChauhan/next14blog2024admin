@@ -12,7 +12,6 @@ import CustomCircularProgress from "@/components/CustomCircularProgress";
 import { useGlobalContext } from "@/context/GlobalContext";
 import postsFormData from "@/Data/postFormData";
 
-
 const PostsAdd = () => {
   const { isLoading, isError, response, apiCall, resetValues, setIsLoading } =
     useApi(createposts);
@@ -20,7 +19,8 @@ const PostsAdd = () => {
   const [CategoryList, setCategoryList] = useState([]);
   const [TagsList, setTagsList] = useState([]);
   const { userData } = useGlobalContext();
-  const { postsFormArray, postsInitialValues, postsValidationSchema } = postsFormData(CategoryList, TagsList)
+  const { postsFormArray, postsInitialValues, postsValidationSchema } =
+    postsFormData(CategoryList, TagsList);
 
   const getfetchcategories = async () => {
     const categories: any = await fetchcategories();
@@ -43,10 +43,10 @@ const PostsAdd = () => {
   };
 
   useEffect(() => {
-    setIsLoading(true)
+    setIsLoading(true);
     getfetchcategories();
     getfetchtags();
-    setIsLoading(false)
+    setIsLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

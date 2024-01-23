@@ -9,7 +9,7 @@ import Roles from "../models/roles.model";
 export async function createUser(payload: any) {
   try {
     connectToDB();
-    const requiredFields = ["name", "email", "password", "role"];
+    const requiredFields = ["name", "email", "password", "role", 'bio', 'profilePicture'];
     const validate = validatePayload(payload, requiredFields);
     if (!validate?.payloadIsCurrect) {
       return {
@@ -17,7 +17,7 @@ export async function createUser(payload: any) {
         message: `Missing required fields: ${validate.missingFields}`,
       };
     }
-    const { name, email, password, role } = payload;
+    const { name, email, password, role, bio, profilePicture } = payload;
     const encryptedPassword = CryptoJS.AES.encrypt(
       password,
       process.env.SECRETKEY || "",
@@ -39,6 +39,8 @@ export async function createUser(payload: any) {
       password: encryptedPassword,
       roleId: RolesData.id,
       client: false,
+      bio,
+      profilePicture
     });
 
     await newUser.save();
@@ -144,7 +146,7 @@ export async function fetchUserByEmail(email: any) {
 export async function updateUser(payload: any) {
   try {
     connectToDB();
-    const requiredFields = ["name", "email", "password", "role"];
+    const requiredFields = ["name", "email", "password", "role", 'bio', "profilePicture"];
     const validate = validatePayload(payload, requiredFields);
     if (!validate?.payloadIsCurrect) {
       return {
@@ -152,7 +154,7 @@ export async function updateUser(payload: any) {
         message: `Missing required fields: ${validate.missingFields}`,
       };
     }
-    const { id, name, email, password, role } = await payload;
+    const { id, name, email, password, role, bio, profilePicture } = await payload;
     const encryptedPassword = CryptoJS.AES.encrypt(
       password,
       process.env.SECRETKEY || "",
@@ -164,7 +166,9 @@ export async function updateUser(payload: any) {
         name: name,
         email: email,
         password: encryptedPassword,
-        role: RolesData?.name,
+        roleId: RolesData?.id,
+        bio: bio,
+        profilePicture: profilePicture
       },
     }; // Define the update operation
 
