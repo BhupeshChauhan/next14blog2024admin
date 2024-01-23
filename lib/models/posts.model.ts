@@ -62,6 +62,7 @@ const postsSchema = new mongoose.Schema(
     },
     description: String,
     slug: String,
+    featured: Object,
     inActive: Boolean,
   },
   { timestamps: true },

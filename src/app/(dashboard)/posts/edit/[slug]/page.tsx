@@ -6,15 +6,20 @@ import CustomCircularProgress from "@/components/CustomCircularProgress";
 import CustomDynamicForm from "@/components/CustomDynamicForm";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { fetchPostById, updatePosts } from "../../../../../../lib/actions/posts.actions";
+import {
+  fetchPostById,
+  updatePosts,
+} from "../../../../../../lib/actions/posts.actions";
 import postsFormData from "@/Data/postFormData";
 import { fetchcategories } from "../../../../../../lib/actions/categories.actions";
 import { fetchtags } from "../../../../../../lib/actions/tags.actions";
 import { useGlobalContext } from "@/context/GlobalContext";
-import checkModulePermission, { moduleAction, moduleName } from "@/utils/checkModulePermission";
+import checkModulePermission, {
+  moduleAction,
+  moduleName,
+} from "@/utils/checkModulePermission";
 
 const UsersEdit = () => {
-  const [postValues, setpostValues] = useState({});
   const [CategoryList, setCategoryList] = useState([]);
   const [TagsList, setTagsList] = useState([]);
   const [IsPublish, setIsPublish] = useState(false);
@@ -22,16 +27,18 @@ const UsersEdit = () => {
   const { userData } = useGlobalContext();
   const { isLoading, isError, response, apiCall, resetValues, setIsLoading } =
     useApi(updatePosts);
-    const { postsFormArray, postsInitialValues, postsValidationSchema } = postsFormData(CategoryList, TagsList)
-    const getfetchcategories = async () => {
-      const categories: any = await fetchcategories();
-      setCategoryList(categories);
-    };
-  
-    const getfetchtags = async () => {
-      const tags: any = await fetchtags();
-      setTagsList(tags);
-    };
+  const { postsFormArray, postsInitialValues, postsValidationSchema } =
+    postsFormData(CategoryList, TagsList);
+  const getfetchcategories = async () => {
+    const categories: any = await fetchcategories();
+    setCategoryList(categories);
+  };
+  const [postValues, setpostValues] = useState(postsInitialValues);
+
+  const getfetchtags = async () => {
+    const tags: any = await fetchtags();
+    setTagsList(tags);
+  };
   const id = pathname.split("/")[3];
   const router = useRouter();
 
@@ -50,6 +57,7 @@ const UsersEdit = () => {
       getfetchcategories();
       getfetchtags();
       const post: any = await fetchPostById(id);
+      console.log(post);
       setpostValues(post);
       setIsLoading(false);
     }
@@ -86,11 +94,13 @@ const UsersEdit = () => {
               onClick={() => {
                 setIsPublish(true);
               }}
-              disabled={!checkModulePermission(
-                userData,
-                moduleName.POST,
-                moduleAction.PUBLISH,
-              )}
+              disabled={
+                !checkModulePermission(
+                  userData,
+                  moduleName.POST,
+                  moduleAction.PUBLISH,
+                )
+              }
             >
               Publish Post
             </Button>
@@ -102,11 +112,13 @@ const UsersEdit = () => {
               onClick={() => {
                 setIsPublish(false);
               }}
-              disabled={!checkModulePermission(
-                userData,
-                moduleName.POST,
-                moduleAction.DRAFT,
-              )}
+              disabled={
+                !checkModulePermission(
+                  userData,
+                  moduleName.POST,
+                  moduleAction.DRAFT,
+                )
+              }
             >
               Draft Post
             </Button>

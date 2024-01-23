@@ -78,6 +78,20 @@ const UsersList = () => {
       },
     },
     {
+      field: "profilePicture",
+      headerName: "Profile Picture",
+      flex: 1,
+      renderCell: (params) => {
+        // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
+        return <img src={params.value} width={100} height={60} />;
+      },
+    },
+    {
+      field: "bio",
+      headerName: "User's Bio",
+      flex: 1,
+    },
+    {
       field: "name",
       headerName: "User's Name",
       flex: 1,

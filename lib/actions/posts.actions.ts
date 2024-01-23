@@ -5,6 +5,7 @@ import posts from "../models/posts.model";
 import { validatePayload } from "../utils";
 import { fetchCategoryById, fetchCategoryByName } from "./categories.actions";
 import { fetchTagsById, fetchTagsByName } from "./tags.actions";
+import { fetchAdminUserById } from "./user.actions";
 
 const getTagIds = async (tags: any) => {
   let tagIdsArray = [];
@@ -29,7 +30,7 @@ const getTagNames = async (tags: any) => {
   for (const tag of tags) {
     const tagObj: any = await fetchTagsById(tag);
     if (!tagObj.inActive) {
-    tagIdsArray.push(tagObj.name);
+      tagIdsArray.push(tagObj.name);
     }
   }
   return tagIdsArray;
@@ -40,7 +41,7 @@ const getCategoryNames = async (categories: any) => {
   for (const category of categories) {
     const categoryObj: any = await fetchCategoryById(category);
     if (!categoryObj.inActive) {
-    categoryIdsArray.push(categoryObj.name);
+      categoryIdsArray.push(categoryObj.name);
     }
   }
   return categoryIdsArray;
@@ -50,7 +51,43 @@ const getPostsData = async (posts: any) => {
   let newData: any = [];
   for (const post of posts) {
     let postData: any = [];
-    const { categoryIds, tagIds } = post;
+    const { categoryIds, tagIds, featured } = post;
+    let categories: any = [];
+    if (categoryIds.length > 0) {
+      for (const id of categoryIds) {
+        categories = await getCategoryNames(id);
+      }
+    }
+    postData = { ...post, categories: categories };
+    delete postData.categoryIds;
+
+    let tags: any = [];
+    if (tagIds.length > 0) {
+      for (const id of tagIds) {
+        tags = await getTagNames(id);
+      }
+    }
+
+    postData = { ...postData, tags: tags };
+    delete postData.tagIds;
+
+    postData = {
+      ...postData,
+      featuredHome: featured?.featuredHome,
+      featuredEditorPick: featured?.featuredEditorPick,
+    };
+    delete postData.featured;
+
+    newData.push(postData);
+  }
+  return newData;
+};
+
+const getPostsFeaturedHome = async (posts: any) => {
+  let newData: any = [];
+  for (const post of posts) {
+    let postData: any = [];
+    const { categoryIds, tagIds, featured } = post;
     let categories: any = [];
     if (categoryIds.length > 0) {
       for (const id of categoryIds) {
@@ -69,7 +106,15 @@ const getPostsData = async (posts: any) => {
     postData = { ...postData, tags: tags };
     delete postData.tagIds;
 
-    newData.push(postData);
+    postData = { ...postData, featuredHome: featured?.featuredHome, featuredEditorPick: featured?.featuredEditorPick };
+    delete postData.featured;
+
+    const author = await fetchAdminUserById(postData?.author?.id);
+    postData = { ...postData, author: author };
+    
+    if(postData?.featuredHome){
+      newData.push(postData);
+    }
   }
   return newData;
 };
@@ -81,8 +126,8 @@ export async function createposts(payload: any) {
       "title",
       "featuredImage",
       "content",
-      'description',
-      'slug',
+      "description",
+      "slug",
       "categories",
       "tags",
       "excerpt",
@@ -117,6 +162,8 @@ export async function createposts(payload: any) {
       author,
       isDraft,
       isPublish,
+      featuredHome,
+      featuredEditorPick,
     } = payload;
 
     let categoryIds = await getCategoryIds(categories);
@@ -142,6 +189,10 @@ export async function createposts(payload: any) {
       author,
       isDraft,
       isPublish,
+      featured: {
+        featuredHome: featuredHome,
+        featuredEditorPick: featuredEditorPick,
+      },
     });
 
     await newposts.save();
@@ -158,13 +209,33 @@ export async function fetchposts() {
     connectToDB();
     let postsData = await posts.find();
     let PublishedPosts: any = [];
-    
+
     if (postsData.length > 0) {
       PublishedPosts = await getPostsData(
         JSON.parse(JSON.stringify(postsData)),
       );
     }
-    
+
+    return PublishedPosts;
+  } catch (error: any) {
+    console.error("Error:", error);
+
+    // throw new Error("Failed to fetch")
+  }
+}
+
+export async function fetchPostsFeaturedHome() {
+  try {
+    connectToDB();
+    let postsData = await posts.find();
+    let PublishedPosts: any = [];
+
+    if (postsData.length > 0) {
+      PublishedPosts = await getPostsFeaturedHome(
+        JSON.parse(JSON.stringify(postsData)),
+      );
+    }
+
     return PublishedPosts;
   } catch (error: any) {
     console.error("Error:", error);
@@ -199,7 +270,7 @@ export async function fetchPostBySlug(slug: any) {
     if (postsData.length > 0) {
       newPosts = await getPostsData(JSON.parse(JSON.stringify(postsData)));
     }
-    return newPosts
+    return newPosts;
   } catch (error: any) {
     console.error("Error:", error);
 
@@ -212,10 +283,8 @@ export async function fetchPostById(id: any) {
     connectToDB();
     const postsData = await posts.findOne({ id });
     let newPosts: any = [];
-    if (postsData.length > 0) {
-      newPosts = await getPostsData(JSON.parse(JSON.stringify(postsData)));
-    }
-    return newPosts
+    newPosts = await getPostsData([JSON.parse(JSON.stringify(postsData))]);
+    return newPosts[0];
   } catch (error: any) {
     console.error("Error:", error);
 
@@ -230,8 +299,8 @@ export async function updatePosts(payload: any) {
       "title",
       "featuredImage",
       "content",
-      'description',
-      'slug',
+      "description",
+      "slug",
       "categories",
       "tags",
       "excerpt",
@@ -267,6 +336,8 @@ export async function updatePosts(payload: any) {
       author,
       isDraft,
       isPublish,
+      featuredHome,
+      featuredEditorPick,
     } = payload;
 
     let categoryIds = await getCategoryIds(categories);
@@ -291,6 +362,10 @@ export async function updatePosts(payload: any) {
         author,
         isDraft,
         isPublish,
+        featured: {
+          featuredHome: featuredHome,
+          featuredEditorPick: featuredEditorPick,
+        },
       },
     }; // Define the update operation
 

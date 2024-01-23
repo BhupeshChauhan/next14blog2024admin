@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "@mui/material";
 import Link from "next/link";
-import * as Yup from "yup";
 import CustomDynamicForm from "@/components/CustomDynamicForm";
 import { fetchcategories } from "../../../../../lib/actions/categories.actions";
 import { fetchtags } from "../../../../../lib/actions/tags.actions";
@@ -12,7 +11,10 @@ import { useRouter } from "next/navigation";
 import CustomCircularProgress from "@/components/CustomCircularProgress";
 import { useGlobalContext } from "@/context/GlobalContext";
 import postsFormData from "@/Data/postFormData";
-import checkModulePermission, { moduleAction, moduleName } from "@/utils/checkModulePermission";
+import checkModulePermission, {
+  moduleAction,
+  moduleName,
+} from "@/utils/checkModulePermission";
 
 const PostsAdd = () => {
   const { isLoading, isError, response, apiCall, resetValues, setIsLoading } =
@@ -20,7 +22,9 @@ const PostsAdd = () => {
   const [CategoryList, setCategoryList] = useState([]);
   const [TagsList, setTagsList] = useState([]);
   const { userData } = useGlobalContext();
-  const { postsFormArray, postsInitialValues, postsValidationSchema } = postsFormData(CategoryList, TagsList)
+  const router = useRouter();
+  const { postsFormArray, postsInitialValues, postsValidationSchema } =
+    postsFormData(CategoryList, TagsList);
   const [IsPublish, setIsPublish] = useState(false);
 
   const getfetchcategories = async () => {
@@ -40,15 +44,14 @@ const PostsAdd = () => {
       isDraft: !IsPublish,
       isPublish: IsPublish,
     });
-    // if (res.status === 200) router.push("/posts/list");
+    if (res.status === 200) router.push("/posts/list");
   };
 
-
   useEffect(() => {
-    setIsLoading(true)
+    setIsLoading(true);
     getfetchcategories();
     getfetchtags();
-    setIsLoading(false)
+    setIsLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -79,11 +82,13 @@ const PostsAdd = () => {
               onClick={() => {
                 setIsPublish(true);
               }}
-              disabled={!checkModulePermission(
-                userData,
-                moduleName.POST,
-                moduleAction.PUBLISH,
-              )}
+              disabled={
+                !checkModulePermission(
+                  userData,
+                  moduleName.POST,
+                  moduleAction.PUBLISH,
+                )
+              }
             >
               Publish Post
             </Button>
@@ -95,11 +100,13 @@ const PostsAdd = () => {
               onClick={() => {
                 setIsPublish(false);
               }}
-              disabled={!checkModulePermission(
-                userData,
-                moduleName.POST,
-                moduleAction.DRAFT,
-              )}
+              disabled={
+                !checkModulePermission(
+                  userData,
+                  moduleName.POST,
+                  moduleAction.DRAFT,
+                )
+              }
             >
               Draft Post
             </Button>

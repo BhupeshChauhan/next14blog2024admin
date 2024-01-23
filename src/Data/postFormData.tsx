@@ -169,6 +169,20 @@ const postsFormData = (CategoryList: any, TagsList: any) => {
       multiple: false,
     },
     {
+      id: "featured",
+      name: "featured",
+      label: "featured",
+      formInputType: "checkboxGroup",
+      CheckboxOptions: [
+        { name: "featuredHome", label: "Feature on Home" },
+        { name: "featuredEditorPick", label: "Feature as editor pick" },
+      ],
+      xs: 6,
+      sm: 6,
+      lg: 6,
+      xl: 6,
+    },
+    {
       label: "Seo Settings",
       formInputType: "section",
       xs: 12,
@@ -272,12 +286,14 @@ const postsFormData = (CategoryList: any, TagsList: any) => {
 
   const postsInitialValues = {
     title: "",
-  content: "<p>Enter Post Content 👋</p>",
-  categories: [],
-  tags: [],
+    content: "<p>Enter Post Content 👋</p>",
+    categories: [],
+    tags: [],
     slug: "",
     description: "",
     featuredImage: "",
+    featuredHome: false,
+    featuredEditorPick: false,
   };
 
   const postsValidationSchema = Yup.object({
@@ -286,8 +302,8 @@ const postsFormData = (CategoryList: any, TagsList: any) => {
     content: Yup.string().required("Content is required"),
     categories: Yup.array().required("Categories is required"),
     tags: Yup.array().required("Tags is required"),
-    slug: Yup.array().required("Slug is required"),
-    description: Yup.array().required("Description is required"),
+    slug: Yup.string().required("Slug is required"),
+    description: Yup.string().required("Description is required"),
     excerpt: Yup.string().required("Excerpt is required"),
     visibility: Yup.string().required("Visibility is required"),
     focusKeyword: Yup.string().required("Focus Keyword is required"),

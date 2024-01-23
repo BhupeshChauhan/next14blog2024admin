@@ -13,7 +13,11 @@ import { usePathname, useRouter } from "next/navigation";
 import { useGlobalContext } from "@/context/GlobalContext";
 import CustomCircularProgress from "@/components/CustomCircularProgress";
 import CustomMenu from "@/components/CustomMenu";
-import checkModulePermission, { checkPermissionDelete, moduleAction, moduleName } from "@/utils/checkModulePermission";
+import checkModulePermission, {
+  checkPermissionDelete,
+  moduleAction,
+  moduleName,
+} from "@/utils/checkModulePermission";
 import { format, parseISO } from "date-fns";
 import CustomModal from "@/components/CustomModal";
 
@@ -29,47 +33,51 @@ const PostsList = () => {
   const { userData } = useGlobalContext();
 
   const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", renderCell: (params) => {
-      const menuItem = [
-        {
-          label: <Typography color="blue">Edit</Typography>,
-          onClick: () => router.push(`/draft/edit/${params?.row?.id}`),
-          disable: !checkModulePermission(
-            userData,
-            moduleName.DRAFT,
-            moduleAction.EDIT,
-          ),
-        },
-        {
-          label: (
-            <Typography color={params.row.inActive ? "green" : "red"}>
-              {params.row.inActive ? "Activate" : "Deactivate"}
-            </Typography>
-          ),
-          onClick: () => {
-            if (params.row.inActive) {
-              setActivateMoadal(true);
-              setSelectedPost(params.row);
-            } else if (!params.row.inActive) {
-              setDeleteMoadal(true);
-              setSelectedPost(params.row);
-            }
+    {
+      field: "id",
+      headerName: "ID",
+      renderCell: (params) => {
+        const menuItem = [
+          {
+            label: <Typography color="blue">Edit</Typography>,
+            onClick: () => router.push(`/draft/edit/${params?.row?.id}`),
+            disable: !checkModulePermission(
+              userData,
+              moduleName.DRAFT,
+              moduleAction.EDIT,
+            ),
           },
+          {
+            label: (
+              <Typography color={params.row.inActive ? "green" : "red"}>
+                {params.row.inActive ? "Activate" : "Deactivate"}
+              </Typography>
+            ),
+            onClick: () => {
+              if (params.row.inActive) {
+                setActivateMoadal(true);
+                setSelectedPost(params.row);
+              } else if (!params.row.inActive) {
+                setDeleteMoadal(true);
+                setSelectedPost(params.row);
+              }
+            },
 
-          disable: checkPermissionDelete(userData, params, moduleName.DRAFT),
-        },
-      ];
-      return (
-        <Grid container>
-          <Grid item xs={10}>
-            {params.value}
+            disable: checkPermissionDelete(userData, params, moduleName.DRAFT),
+          },
+        ];
+        return (
+          <Grid container>
+            <Grid item xs={10}>
+              {params.value}
+            </Grid>
+            <Grid item xs={2}>
+              <CustomMenu menuItem={menuItem} />
+            </Grid>
           </Grid>
-          <Grid item xs={2}>
-            <CustomMenu menuItem={menuItem} />
-          </Grid>
-        </Grid>
-      );
-    }, },
+        );
+      },
+    },
     {
       field: "featuredImage",
       headerName: "Featured Image",
@@ -183,11 +191,18 @@ const PostsList = () => {
         // subtitle="All listed Blogs"
         action={
           <Link href={"/draft/add"}>
-            <Button variant="outlined" disabled={!checkModulePermission(
-            userData,
-            moduleName.DRAFT,
-            moduleAction.ADD,
-          )}>Create Draft Post</Button>
+            <Button
+              variant="outlined"
+              disabled={
+                !checkModulePermission(
+                  userData,
+                  moduleName.DRAFT,
+                  moduleAction.ADD,
+                )
+              }
+            >
+              Create Draft Post
+            </Button>
           </Link>
         }
         columns={columns}
@@ -200,9 +215,7 @@ const PostsList = () => {
       <CustomModal
         open={DeleteMoadal}
         title={`Do you want to Deactivate ${SelectedPost?.name} Draft?`}
-        content={
-          ""
-        }
+        content={""}
         handleClose={() => {
           setDeleteMoadal(false);
           setSelectedPost({});
@@ -216,9 +229,7 @@ const PostsList = () => {
       <CustomModal
         open={ActivateMoadal}
         title={`Do you want to activate ${SelectedPost?.name} Draft`}
-        content={
-          ""
-        }
+        content={""}
         handleClose={() => {
           setActivateMoadal(false);
           setSelectedPost({});

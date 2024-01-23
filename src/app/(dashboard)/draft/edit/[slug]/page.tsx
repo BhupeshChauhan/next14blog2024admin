@@ -6,7 +6,10 @@ import CustomCircularProgress from "@/components/CustomCircularProgress";
 import CustomDynamicForm from "@/components/CustomDynamicForm";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { fetchPostById, updatePosts } from "../../../../../../lib/actions/posts.actions";
+import {
+  fetchPostById,
+  updatePosts,
+} from "../../../../../../lib/actions/posts.actions";
 import postsFormData from "@/Data/postFormData";
 import { fetchcategories } from "../../../../../../lib/actions/categories.actions";
 import { fetchtags } from "../../../../../../lib/actions/tags.actions";
@@ -20,16 +23,17 @@ const UsersEdit = () => {
   const { userData } = useGlobalContext();
   const { isLoading, isError, response, apiCall, resetValues, setIsLoading } =
     useApi(updatePosts);
-    const { postsFormArray, postsInitialValues, postsValidationSchema } = postsFormData(CategoryList, TagsList)
-    const getfetchcategories = async () => {
-      const categories: any = await fetchcategories();
-      setCategoryList(categories);
-    };
-  
-    const getfetchtags = async () => {
-      const tags: any = await fetchtags();
-      setTagsList(tags);
-    };
+  const { postsFormArray, postsInitialValues, postsValidationSchema } =
+    postsFormData(CategoryList, TagsList);
+  const getfetchcategories = async () => {
+    const categories: any = await fetchcategories();
+    setCategoryList(categories);
+  };
+
+  const getfetchtags = async () => {
+    const tags: any = await fetchtags();
+    setTagsList(tags);
+  };
   const id = pathname.split("/")[3];
   const router = useRouter();
 
